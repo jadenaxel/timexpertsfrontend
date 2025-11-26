@@ -1,0 +1,9 @@
+import LogOutIcon from "./LogOut";
+import SettingsIcon from "./Settings";
+import DashboardIcon from "./Dashboard";
+import TransportationIcon from "./Transportation";
+import PayStubIcon from "./PayStub";
+import WarningIcon from "./Warning";
+import ScheduleIcon from "./Schedule";
+
+export { LogOutIcon, SettingsIcon, DashboardIcon, PayStubIcon, TransportationIcon, WarningIcon, ScheduleIcon };
