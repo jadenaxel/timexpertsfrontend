@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import type { JSX } from "react";
+
+import { useState } from "react";
+import { redirect } from "next/navigation";
 
 const AuthPage = (): JSX.Element => {
 	const [username, setUsername] = useState<string>("");
@@ -9,7 +11,6 @@ const AuthPage = (): JSX.Element => {
 
 	const [showPassword, setShowPassword] = useState(false);
 
-    console.log(username, password)
 
 	return (
 		<div className="min-h-screen w-full relative flex items-center justify-center overflow-hidden bg-neutral-900">
@@ -81,6 +82,7 @@ const AuthPage = (): JSX.Element => {
 					<button
 						type="submit"
 						className="w-full py-3 px-4 bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform active:scale-[0.98] cursor-pointer"
+						onClick={() => redirect("/")}
 					>
 						Sign In
 					</button>
