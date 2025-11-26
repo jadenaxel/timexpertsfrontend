@@ -39,30 +39,30 @@ const NavSide = (): JSX.Element => {
                     </div>
                     <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap font-medium">Dashboard</span>
                 </Link>
-                <button className="h-12 w-full text-white/60 hover:text-white hover:bg-white/10 flex items-center transition-all duration-300 justify-start p-0 cursor-pointer">
+                <Link href="/paystub" className={getLinkClass("/paystub")}>
                     <div className="w-24 flex justify-center shrink-0">
                         <PayStubIcon />
                     </div>
                     <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap font-medium">PayStub</span>
-                </button>
-                <button className="h-12 w-full text-white/60 hover:text-white hover:bg-white/10 flex items-center transition-all duration-300 justify-start p-0 cursor-pointer">
+                </Link>
+                <Link href="/warning" className={getLinkClass('/warning')}>
                     <div className="w-24 flex justify-center shrink-0">
                         <WarningIcon />
                     </div>
                     <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap font-medium">Warning</span>
-                </button>
-                <button className="h-12 w-full text-white/60 hover:text-white hover:bg-white/10 flex items-center transition-all duration-300 justify-start p-0 cursor-pointer">
+                </Link>
+                <Link href="/transportation" className={getLinkClass('/transportation')}>
                     <div className="w-24 flex justify-center shrink-0">
                         <TransportationIcon />
                     </div>
                     <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap font-medium">Transportation</span>
-                </button>
-                <button className="h-12 w-full text-white/60 hover:text-white hover:bg-white/10 flex items-center transition-all duration-300 justify-start p-0 cursor-pointer">
+                </Link>
+                <Link href="/schedule" className={getLinkClass('/schedule')}>
                     <div className="w-24 flex justify-center shrink-0">
                         <ScheduleIcon />
                     </div>
                     <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap font-medium">Schedule</span>
-                </button>
+                </Link>
                 <Link href="/settings" className={getLinkClass("/settings")}>
                     <div className="w-24 flex justify-center shrink-0">
                         <SettingsIcon />
