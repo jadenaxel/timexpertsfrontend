@@ -1,3 +1,4 @@
 import NavSide from "./SideNav";
+import Nav from "./Nav";
 
-export { NavSide };
+export { NavSide, Nav };
