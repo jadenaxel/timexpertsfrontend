@@ -2,7 +2,7 @@
 
 import type { JSX } from "react";
 
-import { NavSide } from "./components";
+import { NavSide } from "@/components";
 
 const Home = (): JSX.Element => {
 	return (

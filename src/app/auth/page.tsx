@@ -11,7 +11,6 @@ const AuthPage = (): JSX.Element => {
 
 	const [showPassword, setShowPassword] = useState(false);
 
-
 	return (
 		<div className="min-h-screen w-full relative flex items-center justify-center overflow-hidden bg-neutral-900">
 			{/* Background with colorful gradients to mimic the mural vibe since we are code-only */}

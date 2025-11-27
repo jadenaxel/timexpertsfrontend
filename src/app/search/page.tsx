@@ -1,10 +1,10 @@
 "use client";
 
-import type { JSX } from "react";
+import type { FC, JSX } from "react";
 
 import { NavSide } from "@/components";
 
-const Schedule = (): JSX.Element => {
+const Search: FC = (): JSX.Element => {
 	return (
 		<div className="flex min-h-screen bg-gray-50 font-sans text-gray-800">
 			<NavSide />
@@ -12,4 +12,4 @@ const Schedule = (): JSX.Element => {
 	);
 };
 
-export default Schedule;
+export default Search;
