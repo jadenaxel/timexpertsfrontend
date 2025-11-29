@@ -12,7 +12,7 @@ const NavSide = (): JSX.Element => {
 	const router = useRouter();
 
 	return (
-		<aside className="w-24 hover:w-64 bg-[#7e3a8a] flex flex-col py-8 fixed h-full left-0 top-0 z-50 transition-all duration-300 ease-in-out group overflow-x-hidden overflow-y-auto shadow-2xl scrollbar-thin">
+		<aside className="w-24 hover:w-64 bg-[#7e3a8a] flex flex-col py-8 fixed h-full left-0 top-0 z-50 transition-all duration-300 ease-in-out group overflow-x-hidden overflow-y-auto shadow-2xl [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-transparent hover:[&::-webkit-scrollbar-thumb]:bg-white/30 hover:[&::-webkit-scrollbar-thumb]:rounded-full">
 			<div className="mb-12 w-full flex items-center transition-all">
 				<div className="w-24 flex justify-center shrink-0">
 					<div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center text-white font-bold text-xl">T</div>
