@@ -2,14 +2,22 @@
 
 import type { JSX } from "react";
 
-import { useState } from "react";
-import { redirect } from "next/navigation";
+import { useState, useActionState, useEffect } from "react";
+import { login } from "../actions/auth";
+import { useAuth } from "@/contexts/auth-context";
 
 const AuthPage = (): JSX.Element => {
-	const [username, setUsername] = useState<string>("");
-	const [password, setPassword] = useState<string>("");
+	const [state, formAction, isPending] = useActionState(login, { message: "", error: false });
+	const { login: authLogin } = useAuth();
 
 	const [showPassword, setShowPassword] = useState(false);
+
+	// Cuando el login es exitoso, guardar el token
+	useEffect(() => {
+		if (state.token && !state.error) {
+			authLogin(state.token);
+		}
+	}, [state, authLogin]);
 
 	return (
 		<div className="min-h-screen w-full relative flex items-center justify-center overflow-hidden bg-neutral-900">
@@ -46,22 +54,25 @@ const AuthPage = (): JSX.Element => {
 					<h2 className="text-3xl font-bold text-[#0070f3]">Sign In</h2>
 				</div>
 
-				<form className="space-y-6" onSubmit={e => e.preventDefault()}>
+				<form className="space-y-6" action={formAction}>
+					{state.error && <div className="p-3 text-sm text-red-500 bg-red-50 rounded-lg border border-red-200">{state.message}</div>}
 					<div className="space-y-2">
 						<input
 							type="text"
+							name="username"
 							placeholder="Enter your username"
 							className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all text-gray-600 placeholder:text-gray-400"
-							onChange={e => setUsername(e.target.value)}
+							required
 						/>
 					</div>
 
 					<div className="space-y-2">
 						<input
 							type={showPassword ? "text" : "password"}
+							name="password"
 							placeholder="Enter your password"
 							className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all text-gray-600 placeholder:text-gray-400"
-							onChange={e => setPassword(e.target.value)}
+							required
 						/>
 					</div>
 
@@ -80,10 +91,10 @@ const AuthPage = (): JSX.Element => {
 
 					<button
 						type="submit"
-						className="w-full py-3 px-4 bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform active:scale-[0.98] cursor-pointer"
-						onClick={() => redirect("/")}
+						disabled={isPending}
+						className="w-full py-3 px-4 bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform active:scale-[0.98] cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
 					>
-						Sign In
+						{isPending ? "Signing In..." : "Sign In"}
 					</button>
 				</form>
 			</div>

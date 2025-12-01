@@ -2,14 +2,13 @@
 
 import type { JSX } from "react";
 
-import { useRouter } from "next/navigation";
-
 import NavButton from "./button";
 import { NavigationData } from "@/helpers";
 import { LogOutIcon } from "../icons";
+import { useAuth } from "@/contexts/auth-context";
 
 const NavSide = (): JSX.Element => {
-	const router = useRouter();
+	const { logout: logoutClient } = useAuth();
 
 	return (
 		<aside className="w-24 hover:w-64 bg-[#7e3a8a] flex flex-col py-8 fixed h-full left-0 top-0 z-50 transition-all duration-300 ease-in-out group overflow-x-hidden overflow-y-auto shadow-2xl [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-transparent hover:[&::-webkit-scrollbar-thumb]:bg-white/30 hover:[&::-webkit-scrollbar-thumb]:rounded-full">
@@ -27,7 +26,9 @@ const NavSide = (): JSX.Element => {
 			<div className="mt-auto w-full">
 				<button
 					className="h-12 w-full text-white/60 hover:text-white hover:bg-white/10 flex items-center transition-all duration-300 justify-start p-0 cursor-pointer"
-					onClick={() => router.push("/auth")}
+					onClick={() => {
+						void logoutClient();
+					}}
 				>
 					<div className="w-24 flex justify-center shrink-0">
 						<LogOutIcon />
