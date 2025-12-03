@@ -5,23 +5,37 @@ import type { JSX } from "react";
 import { useState, useActionState, useEffect } from "react";
 import { login } from "../actions/auth";
 import { useAuth } from "@/contexts/auth-context";
+import { useFetch } from "@/hooks";
+import { Loading } from "@/components";
 
 const AuthPage = (): JSX.Element => {
 	const [state, formAction, isPending] = useActionState(login, { message: "", error: false });
 	const { login: authLogin } = useAuth();
 
 	const [showPassword, setShowPassword] = useState(false);
+	const [selectedDomain, setSelectedDomain] = useState("co");
 
-	// Cuando el login es exitoso, guardar el token
+	const { data, loading, error } = useFetch("https://api.country.is/");
+	const country: string = data?.country;
+
 	useEffect(() => {
 		if (state.token && !state.error) {
 			authLogin(state.token);
 		}
 	}, [state, authLogin]);
 
+	useEffect(() => {
+		if (country) {
+			const domain = country === "DO" ? "do" : "co";
+			setSelectedDomain(domain);
+		}
+	}, [country]);
+
+	if (loading) return <Loading />;
+	if (error) return <div>Error fetching country data</div>;
+
 	return (
 		<div className="min-h-screen w-full relative flex items-center justify-center overflow-hidden bg-neutral-900">
-			{/* Background with colorful gradients to mimic the mural vibe since we are code-only */}
 			<div className="absolute inset-0 z-0 opacity-50">
 				<div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-yellow-500 via-purple-600 to-blue-500 opacity-60" />
 				<div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob" />
@@ -29,7 +43,6 @@ const AuthPage = (): JSX.Element => {
 				<div className="absolute -bottom-8 left-1/3 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000" />
 			</div>
 
-			{/* Decorative Text Elements (mimicking the painted wall text) */}
 			<div className="absolute left-10 top-1/2 -translate-y-1/2 hidden xl:block z-0">
 				<h1 className="text-8xl font-black tracking-tighter text-white/20 select-none transform -rotate-2">
 					HIRED
@@ -47,7 +60,6 @@ const AuthPage = (): JSX.Element => {
 				<div className="mt-4 h-2 w-32 bg-red-600/50 ml-auto rounded-full" />
 			</div>
 
-			{/* Main Card */}
 			<div className="relative z-10 w-full max-w-md bg-white rounded-xl shadow-2xl p-8 m-4">
 				<div className="text-center mb-8">
 					<h1 className="text-4xl font-black text-gray-800 mb-3 tracking-tight">TimeXperts</h1>
@@ -74,6 +86,19 @@ const AuthPage = (): JSX.Element => {
 							className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all text-gray-600 placeholder:text-gray-400"
 							required
 						/>
+					</div>
+
+					<div className="space-y-2">
+						<select
+							name="domain"
+							value={selectedDomain}
+							onChange={e => setSelectedDomain(e.target.value)}
+							className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all text-gray-600 placeholder:text-gray-400"
+							required
+						>
+							<option value="co">hiredexpertscol.com</option>
+							<option value="do">hiredexpert.local</option>
+						</select>
 					</div>
 
 					<div className="flex items-center space-x-2">

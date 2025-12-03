@@ -1,18 +1,21 @@
 "use client";
 
-import type { JSX } from "react";
+import type { FC, JSX } from "react";
 
 import { NavSide, Nav, ProtectedRoute } from "@/components";
 
-const Home = (): JSX.Element => {
+const Credit: FC = (): JSX.Element => {
 	return (
 		<ProtectedRoute>
 			<div className="flex min-h-screen bg-gray-50 font-sans text-gray-800">
 				<NavSide />
 
+				{/* Main Content Wrapper */}
 				<div className="flex-1 ml-24 flex flex-col">
-					<Nav title="Dashboard" />
+					{/* Header */}
+					<Nav title="Admin Pay" />
 
+					{/* Page Content */}
 					<main className="flex-1 p-8"></main>
 				</div>
 			</div>
@@ -20,4 +23,4 @@ const Home = (): JSX.Element => {
 	);
 };
 
-export default Home;
+export default Credit;

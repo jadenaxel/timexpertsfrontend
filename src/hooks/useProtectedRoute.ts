@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 
 import { validateToken, hasToken } from "@/utils";
 import { useAuth } from "@/contexts/auth-context";
@@ -8,6 +8,7 @@ const useProtectedRoute = () => {
 	const [isValid, setIsValid] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const { logout, isAuthenticated } = useAuth();
+	const hasValidated = useRef(false);
 
 	const runValidation = useCallback(async () => {
 		setIsValidating(true);
@@ -41,8 +42,13 @@ const useProtectedRoute = () => {
 	}, [logout, isAuthenticated]);
 
 	useEffect(() => {
+		// Prevent double validation on mount
+		if (hasValidated.current) return;
+		hasValidated.current = true;
+
 		runValidation();
-	}, [runValidation]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []); // Empty dependency array - only run once on mount
 
 	return { isValidating, isValid, error, retry: runValidation };
 };

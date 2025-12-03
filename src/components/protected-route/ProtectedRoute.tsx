@@ -4,21 +4,12 @@ import type { JSX, FC } from "react";
 import type { ProtectedRouteProps } from "@/types";
 
 import { useProtectedRoute } from "@/hooks";
+import Loading from "../Loading";
 
-const ProtectedRoute: FC<ProtectedRouteProps> = ({
-	children,
-	loadingMessage = "Validando sesión...",
-	errorMessage = "No pudimos contactar al servidor de autenticación."
-}: ProtectedRouteProps): JSX.Element | null => {
+const ProtectedRoute: FC<ProtectedRouteProps> = ({ children, errorMessage = "No pudimos contactar al servidor de autenticación." }: ProtectedRouteProps): JSX.Element | null => {
 	const { isValidating, isValid, error, retry } = useProtectedRoute();
 
-	if (isValidating) {
-		return (
-			<div className="flex min-h-screen items-center justify-center bg-gray-50 text-gray-600">
-				<span className="animate-pulse text-sm">{loadingMessage}</span>
-			</div>
-		);
-	}
+	if (isValidating) return <Loading />;
 
 	if (error) {
 		return (
