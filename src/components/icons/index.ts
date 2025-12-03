@@ -8,5 +8,6 @@ import ScheduleIcon from "./Schedule";
 import SearchIcon from "./Search";
 import CreditIcon from "./Credit";
 import PowerBIIcon from "./PowerBI";
+import PeopleIcon from "./People";
 
-export { LogOutIcon, SettingsIcon, DashboardIcon, PayStubIcon, TransportationIcon, WarningIcon, ScheduleIcon, SearchIcon, CreditIcon, PowerBIIcon };
+export { LogOutIcon, SettingsIcon, DashboardIcon, PayStubIcon, TransportationIcon, WarningIcon, ScheduleIcon, SearchIcon, CreditIcon, PowerBIIcon, PeopleIcon };

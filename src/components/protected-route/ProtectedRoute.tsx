@@ -1,19 +1,15 @@
 "use client";
 
-import type { JSX, ReactNode } from "react";
-import { useProtectedRoute } from "@/hooks/useProtectedRoute";
+import type { JSX, FC } from "react";
+import type { ProtectedRouteProps } from "@/types";
 
-interface ProtectedRouteProps {
-	children: ReactNode;
-	loadingMessage?: string;
-	errorMessage?: string;
-}
+import { useProtectedRoute } from "@/hooks";
 
-export function ProtectedRoute({
+const ProtectedRoute: FC<ProtectedRouteProps> = ({
 	children,
 	loadingMessage = "Validando sesión...",
 	errorMessage = "No pudimos contactar al servidor de autenticación."
-}: ProtectedRouteProps): JSX.Element | null {
+}: ProtectedRouteProps): JSX.Element | null => {
 	const { isValidating, isValid, error, retry } = useProtectedRoute();
 
 	if (isValidating) {
@@ -41,9 +37,10 @@ export function ProtectedRoute({
 	}
 
 	if (!isValid) {
-		// The hook already redirects to /auth, we simply avoid rendering protected content.
 		return null;
 	}
 
 	return <>{children}</>;
-}
+};
+
+export default ProtectedRoute;

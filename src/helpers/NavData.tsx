@@ -1,4 +1,4 @@
-import { DashboardIcon, PayStubIcon, WarningIcon, TransportationIcon, ScheduleIcon, SettingsIcon, SearchIcon, CreditIcon, PowerBIIcon } from "@/components";
+import { DashboardIcon, PayStubIcon, WarningIcon, TransportationIcon, ScheduleIcon, SettingsIcon, SearchIcon, CreditIcon, PowerBIIcon, PeopleIcon } from "@/components";
 
 const NavigationData = [
 	{
@@ -12,9 +12,14 @@ const NavigationData = [
 		title: "Search"
 	},
 	{
+		icon: <PeopleIcon />,
+		href: "/people",
+		title: "People"
+	},
+	{
 		icon: <CreditIcon />,
-		href: "/credit",
-		title: "Credit"
+		href: "/adminpay",
+		title: "Admin Pay"
 	},
 	{
 		icon: <PowerBIIcon />,
@@ -26,16 +31,16 @@ const NavigationData = [
 		href: "/paystub",
 		title: "PayStub"
 	},
-	{
-		icon: <WarningIcon />,
-		href: "/warning",
-		title: "Warning"
-	},
-	{
-		icon: <TransportationIcon />,
-		href: "/transportation",
-		title: "Transportation"
-	},
+	// {
+	// 	icon: <WarningIcon />,
+	// 	href: "/warning",
+	// 	title: "Warning"
+	// },
+	// {
+	// 	icon: <TransportationIcon />,
+	// 	href: "/transportation",
+	// 	title: "Transportation"
+	// },
 	{
 		icon: <ScheduleIcon />,
 		href: "/schedule",
