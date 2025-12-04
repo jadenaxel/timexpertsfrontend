@@ -8,6 +8,7 @@ import { NavSide, Nav, ProtectedRoute, Loading, CardPeople } from "@/components"
 import { useFetch } from "@/hooks";
 import { UseFetchResult } from "@/types";
 import { API_ENPOINT_V1, ITEMS_PER_PAGE } from "@/../config";
+import Link from "next/link";
 
 const People: FC = (): JSX.Element => {
 	const { data, loading, error }: UseFetchResult<any> = useFetch(API_ENPOINT_V1.GET_PEOPLE);
@@ -168,9 +169,13 @@ const People: FC = (): JSX.Element => {
 						{/* People Cards */}
 						{paginatedData.length > 0 ? (
 							<>
-								{paginatedData.map((person: any, key: number) => (
-									<CardPeople key={key} {...person} />
-								))}
+								{paginatedData.map((person: any, key: number) => {
+									return (
+										<Link href={`/people/${person.id_user}`} key={key}>
+											<CardPeople {...person} />
+										</Link>
+									);
+								})}
 
 								{/* Pagination Controls */}
 								{totalPages > 1 && (

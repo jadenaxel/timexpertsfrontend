@@ -29,4 +29,16 @@ interface CardPeopleProps {
 	[key: string]: any;
 }
 
-export type { UseFetchOptions, UseFetchResult, ProtectedRouteProps, CardPeopleProps };
+interface PeoplePageProps {
+	params: Promise<{ id: string }> | { id: string };
+}
+
+type TabType = "INFO" | "EMPLOYMENT" | "WORK_TIME" | "CAPTURE" | "SETTINGS";
+
+interface InfoFieldProps {
+	label: string;
+	value?: ReactNode;
+	placeholder?: string;
+}
+
+export type { UseFetchOptions, UseFetchResult, ProtectedRouteProps, CardPeopleProps, PeoplePageProps, TabType, InfoFieldProps };

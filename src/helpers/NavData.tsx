@@ -6,11 +6,11 @@ const NavigationData = [
 		href: "/",
 		title: "Dashboard"
 	},
-	{
-		icon: <SearchIcon />,
-		href: "/search",
-		title: "Search"
-	},
+	// {
+	// 	icon: <SearchIcon />,
+	// 	href: "/search",
+	// 	title: "Search"
+	// },
 	{
 		icon: <PeopleIcon />,
 		href: "/people",
