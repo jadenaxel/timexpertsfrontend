@@ -13,6 +13,10 @@ const PeoplePage: FC<PeoplePageProps> = ({ params }) => {
 	const UserID: any = use(params as Promise<{ id: string }>);
 	const [activeTab, setActiveTab] = useState<TabType>("INFO");
 	const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+	const [zoomLevel, setZoomLevel] = useState<number>(1);
+	const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+	const [isDragging, setIsDragging] = useState<boolean>(false);
+	const [dragStart, setDragStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
 	const { data, loading, error }: any = useFetch<any>(`${API_ENPOINT_V1.GET_PERSON_BY_ID}${UserID.id}`);
 
@@ -316,16 +320,101 @@ const PeoplePage: FC<PeoplePageProps> = ({ params }) => {
 				</div>
 
 				{selectedImageIndex !== null && (
-					<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm" onClick={() => setSelectedImageIndex(null)}>
+					<div
+						className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+						onClick={() => {
+							setSelectedImageIndex(null);
+							setZoomLevel(1);
+							setPan({ x: 0, y: 0 });
+						}}
+						onWheel={e => {
+							e.preventDefault();
+							const delta = e.deltaY > 0 ? -0.1 : 0.1;
+							setZoomLevel(prev => {
+								const newZoom = Math.min(Math.max(0.5, prev + delta), 3);
+								if (newZoom === 1) setPan({ x: 0, y: 0 });
+								return newZoom;
+							});
+						}}
+					>
 						{/* Top Bar */}
 						<div className="absolute left-4 top-4 text-lg font-medium text-white">
 							{selectedImageIndex + 1} / {data.screenshots.length}
 						</div>
-						<button onClick={() => setSelectedImageIndex(null)} className="absolute right-4 top-4 text-white hover:text-gray-300 cursor-pointer">
+						<button
+							onClick={() => {
+								setSelectedImageIndex(null);
+								setZoomLevel(1);
+								setPan({ x: 0, y: 0 });
+							}}
+							className="absolute right-4 top-4 text-white hover:text-gray-300 cursor-pointer"
+						>
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-8 w-8">
 								<path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
 							</svg>
 						</button>
+
+						{/* Zoom Controls */}
+						<div className="absolute right-4 bottom-4 flex flex-col gap-2">
+							<button
+								onClick={e => {
+									e.stopPropagation();
+									setZoomLevel(prev => {
+										const newZoom = Math.min(prev + 0.25, 3);
+										if (prev === 1 && newZoom > 1) setPan({ x: 0, y: 0 });
+										return newZoom;
+									});
+								}}
+								className="bg-white/10 backdrop-blur-sm text-white p-2 rounded-lg hover:bg-white/20 transition cursor-pointer"
+								title="Zoom In"
+							>
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-6 w-6">
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6"
+									/>
+								</svg>
+							</button>
+							<div className="bg-white/10 backdrop-blur-sm text-white px-3 py-1 rounded-lg text-sm font-medium text-center">{Math.round(zoomLevel * 100)}%</div>
+							<button
+								onClick={e => {
+									e.stopPropagation();
+									setZoomLevel(prev => {
+										const newZoom = Math.max(prev - 0.25, 0.5);
+										if (newZoom === 1) setPan({ x: 0, y: 0 });
+										return newZoom;
+									});
+								}}
+								className="bg-white/10 backdrop-blur-sm text-white p-2 rounded-lg hover:bg-white/20 transition cursor-pointer"
+								title="Zoom Out"
+							>
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-6 w-6">
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM13.5 10.5h-6"
+									/>
+								</svg>
+							</button>
+							<button
+								onClick={e => {
+									e.stopPropagation();
+									setZoomLevel(1);
+									setPan({ x: 0, y: 0 });
+								}}
+								className="bg-white/10 backdrop-blur-sm text-white p-2 rounded-lg hover:bg-white/20 transition cursor-pointer text-xs"
+								title="Reset Zoom"
+							>
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-6 w-6">
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+									/>
+								</svg>
+							</button>
+						</div>
 
 						{/* Prev Button */}
 						{selectedImageIndex > 0 && (
@@ -333,6 +422,8 @@ const PeoplePage: FC<PeoplePageProps> = ({ params }) => {
 								onClick={e => {
 									e.stopPropagation();
 									setSelectedImageIndex(selectedImageIndex - 1);
+									setZoomLevel(1);
+									setPan({ x: 0, y: 0 });
 								}}
 								className="absolute left-4 p-2 text-white hover:text-gray-300 cursor-pointer transition hover:scale-110"
 							>
@@ -346,8 +437,33 @@ const PeoplePage: FC<PeoplePageProps> = ({ params }) => {
 						<img
 							src={`data:image/png;base64,${Buffer.from(data.screenshots[selectedImageIndex].image_data).toString("base64")}`}
 							alt={`Screenshot ${selectedImageIndex + 1}`}
-							className="max-h-[90vh] max-w-[80vw] object-contain shadow-2xl"
+							className={`max-h-[90vh] max-w-[80vw] object-contain shadow-2xl transition-transform duration-200 select-none ${
+								zoomLevel > 1 ? "cursor-grab active:cursor-grabbing" : "cursor-zoom-in"
+							}`}
+							style={{
+								transform: `scale(${zoomLevel}) translate(${pan.x}px, ${pan.y}px)`,
+								transformOrigin: "center"
+							}}
 							onClick={e => e.stopPropagation()}
+							onMouseDown={e => {
+								if (zoomLevel > 1) {
+									e.preventDefault();
+									e.stopPropagation();
+									setIsDragging(true);
+									setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+								}
+							}}
+							onMouseMove={e => {
+								if (isDragging && zoomLevel > 1) {
+									e.preventDefault();
+									setPan({
+										x: e.clientX - dragStart.x,
+										y: e.clientY - dragStart.y
+									});
+								}
+							}}
+							onMouseUp={() => setIsDragging(false)}
+							onMouseLeave={() => setIsDragging(false)}
 						/>
 
 						{/* Next Button */}
@@ -356,6 +472,8 @@ const PeoplePage: FC<PeoplePageProps> = ({ params }) => {
 								onClick={e => {
 									e.stopPropagation();
 									setSelectedImageIndex(selectedImageIndex + 1);
+									setZoomLevel(1);
+									setPan({ x: 0, y: 0 });
 								}}
 								className="absolute right-4 p-2 text-white hover:text-gray-300 cursor-pointer transition hover:scale-110"
 							>
