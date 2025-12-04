@@ -1,4 +1,4 @@
-const TOKEN_KEY = "test";
+const TOKEN_KEY: string = "test";
 
 const getToken = (): string | null => {
 	if (typeof window === "undefined") return null;
@@ -18,7 +18,7 @@ const removeToken = (): void => {
 const hasToken = (): boolean => getToken() !== null;
 
 const getAuthHeader = (): HeadersInit => {
-	const token = getToken();
+	const token: string | null = getToken();
 	if (!token) return {};
 
 	return {

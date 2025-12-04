@@ -9,5 +9,21 @@ import SearchIcon from "./Search";
 import CreditIcon from "./Credit";
 import PowerBIIcon from "./PowerBI";
 import PeopleIcon from "./People";
+import ClockIcon from "./Clock";
+import InfoIcon from "./Info";
 
-export { LogOutIcon, SettingsIcon, DashboardIcon, PayStubIcon, TransportationIcon, WarningIcon, ScheduleIcon, SearchIcon, CreditIcon, PowerBIIcon, PeopleIcon };
+export {
+	LogOutIcon,
+	SettingsIcon,
+	DashboardIcon,
+	PayStubIcon,
+	TransportationIcon,
+	WarningIcon,
+	ScheduleIcon,
+	SearchIcon,
+	CreditIcon,
+	PowerBIIcon,
+	PeopleIcon,
+	ClockIcon,
+	InfoIcon
+};

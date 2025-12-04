@@ -25,13 +25,25 @@ const FormatDate = (date: string): string => {
 		return date;
 	}
 };
+const FormatHour = (hour: string): string => {
+	if (!hour) return "";
+	try {
+		return new Date(hour).toLocaleTimeString("en-US", {
+			hour: "2-digit",
+			minute: "2-digit",
+			hour12: true,
+			timeZone: "UTC"
+		});
+	} catch {
+		return hour;
+	}
+};
 
-const UserPageTabs = [
+const UserPageTabs: any[] = [
 	{ id: "INFO" as TabType, label: "INFO" },
 	{ id: "EMPLOYMENT" as TabType, label: "EMPLOYMENT" },
 	{ id: "WORK_TIME" as TabType, label: "WORK TIME & LIMITS" },
-	{ id: "CAPTURE" as TabType, label: "CAPTURES" },
-	{ id: "SETTINGS" as TabType, label: "SETTINGS" }
+	{ id: "CAPTURE" as TabType, label: "CAPTURES" }
 ];
 
-export { API_URL_V1, API_ENPOINT_V1, JWT_SECRET, ITEMS_PER_PAGE, FullName, GetNameInitials, FormatDate, UserPageTabs };
+export { API_URL_V1, API_ENPOINT_V1, JWT_SECRET, ITEMS_PER_PAGE, FullName, GetNameInitials, FormatDate, FormatHour, UserPageTabs };

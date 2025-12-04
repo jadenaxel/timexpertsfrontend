@@ -3,37 +3,32 @@
 import type { FC, JSX } from "react";
 
 import { useState, useMemo, useEffect } from "react";
+import Link from "next/link";
 
-import { NavSide, Nav, ProtectedRoute, Loading, CardPeople } from "@/components";
+import { NavSide, Nav, ProtectedRoute, Loading, Error, CardPeople } from "@/components";
 import { useFetch } from "@/hooks";
 import { UseFetchResult } from "@/types";
 import { API_ENPOINT_V1, ITEMS_PER_PAGE } from "@/../config";
-import Link from "next/link";
 
 const People: FC = (): JSX.Element => {
 	const { data, loading, error }: UseFetchResult<any> = useFetch(API_ENPOINT_V1.GET_PEOPLE);
-	const [searchQuery, setSearchQuery] = useState("");
-	const [currentPage, setCurrentPage] = useState(1);
+	const [searchQuery, setSearchQuery] = useState<string>("");
+	const [currentPage, setCurrentPage] = useState<number>(1);
 	const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
 
 	const filteredData = useMemo(() => {
 		if (!data) return [];
 
-		let filtered = data;
+		let filtered: any[] = data;
 
-		// Filter by search query
 		if (searchQuery.trim()) {
 			const query: string = searchQuery.toLowerCase();
 			filtered = filtered.filter((person: any) => {
 				const fullName: string = `${person.name} ${person.last_name}`.toLowerCase();
-				const email: string = person.email?.toLowerCase() || "";
-				const role: string = person.role?.toLowerCase() || "";
-
-				return fullName.includes(query) || email.includes(query) || role.includes(query);
+				return fullName.includes(query);
 			});
 		}
 
-		// Filter by status
 		if (statusFilter !== "all") {
 			filtered = filtered.filter((person: any) => {
 				const personStatus = person.status?.toLowerCase() || "active";
@@ -51,6 +46,7 @@ const People: FC = (): JSX.Element => {
 	const paginatedData = useMemo(() => {
 		return filteredData.slice(startIndex, endIndex);
 	}, [filteredData, startIndex, endIndex]);
+
 	useMemo(() => {
 		setCurrentPage(1);
 	}, [searchQuery]);
@@ -60,16 +56,14 @@ const People: FC = (): JSX.Element => {
 	}, [currentPage]);
 
 	if (loading) return <Loading />;
-	if (error) return <div>Error: {error}</div>;
+	if (error) return <Error />;
 
 	return (
 		<ProtectedRoute>
 			<div className="flex min-h-screen bg-gray-50 font-sans text-gray-800">
 				<NavSide />
 
-				{/* Main Content Wrapper */}
 				<div className="flex-1 ml-24 flex flex-col">
-					{/* Header with Search */}
 					<Nav title="People">
 						<div className="relative w-full">
 							<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -81,7 +75,7 @@ const People: FC = (): JSX.Element => {
 								type="text"
 								value={searchQuery}
 								onChange={e => setSearchQuery(e.target.value)}
-								placeholder="Search by name, email, or role..."
+								placeholder="Search by name"
 								className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
 							/>
 							{searchQuery && (
@@ -94,16 +88,12 @@ const People: FC = (): JSX.Element => {
 						</div>
 					</Nav>
 
-					{/* Page Content */}
 					<main className="flex-1 p-8">
-						{/* Search Results Counter */}
 						{searchQuery && (
 							<p className="mb-4 text-sm text-gray-600">
 								Found {filteredData.length} result{filteredData.length !== 1 ? "s" : ""}
 							</p>
 						)}
-
-						{/* Status Filter */}
 						<div className="mb-6 flex items-center gap-3">
 							<span className="text-sm font-medium text-gray-700">Filter by status:</span>
 							<div className="inline-flex rounded-lg border border-gray-300 bg-white">
@@ -143,30 +133,21 @@ const People: FC = (): JSX.Element => {
 							</div>
 						</div>
 
-						{/* Table Headers */}
 						{filteredData.length > 0 && (
 							<div className="bg-white border border-gray-200 rounded-lg p-4 mb-2">
 								<div className="flex items-center gap-4">
-									{/* Member - flex to fill space */}
 									<div className="flex items-center gap-3 min-w-0 flex-1">
 										<span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Member</span>
 									</div>
-
-									{/* Status - Fixed width */}
 									<div className="flex items-center gap-2 flex-shrink-0 w-[85px]">
 										<span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</span>
 									</div>
-
-									{/* Date added - Fixed width */}
 									<div className="text-xs font-semibold text-gray-600 uppercase tracking-wider flex-shrink-0 w-[150px]">Date added</div>
-
-									{/* Actions - Fixed width */}
 									<div className="text-xs font-semibold text-gray-600 uppercase tracking-wider flex-shrink-0 w-[95px]">Actions</div>
 								</div>
 							</div>
 						)}
 
-						{/* People Cards */}
 						{paginatedData.length > 0 ? (
 							<>
 								{paginatedData.map((person: any, key: number) => {
@@ -177,7 +158,6 @@ const People: FC = (): JSX.Element => {
 									);
 								})}
 
-								{/* Pagination Controls */}
 								{totalPages > 1 && (
 									<div className="mt-8 flex items-center justify-between border-t border-gray-200 pt-6">
 										<div className="flex items-center gap-2">
@@ -189,7 +169,6 @@ const People: FC = (): JSX.Element => {
 										</div>
 
 										<div className="flex items-center gap-2">
-											{/* Previous Button */}
 											<button
 												onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
 												disabled={currentPage === 1}

@@ -3,30 +3,23 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 import { useRouter, usePathname } from "next/navigation";
-import { getToken, setToken, removeToken } from "@/utils/token";
-import { validateToken } from "@/utils/auth-api";
 
-interface AuthContextType {
-	isAuthenticated: boolean;
-	token: string | null;
-	isLoading: boolean;
-	employeeId: string | null;
-	login: (token: string) => void;
-	logout: () => Promise<void>;
-}
+import { validateToken, getToken, setToken, removeToken } from "@/utils";
+import { AuthContextType } from "@/types";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-function AuthProvider({ children }: { children: ReactNode }) {
+const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [token, setTokenState] = useState<string | null>(null);
 	const [employeeId, setEmployeeId] = useState<string | null>(null);
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
+
 	const router = useRouter();
 	const pathname = usePathname();
 
 	useEffect(() => {
-		async function initAuth() {
+		const initAuth = async () => {
 			const storedToken = getToken();
 
 			if (!storedToken) {
@@ -47,7 +40,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
 			}
 
 			setIsLoading(false);
-		}
+		};
 
 		initAuth();
 	}, []);
@@ -91,10 +84,10 @@ function AuthProvider({ children }: { children: ReactNode }) {
 			{children}
 		</AuthContext.Provider>
 	);
-}
+};
 
 const useAuth = () => {
-	const context = useContext(AuthContext);
+	const context: AuthContextType | undefined = useContext(AuthContext);
 	if (context === undefined) {
 		throw new Error("useAuth must be used within an AuthProvider");
 	}

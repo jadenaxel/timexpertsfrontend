@@ -3,25 +3,62 @@
 import type { FC } from "react";
 import type { PeoplePageProps, TabType } from "@/types";
 
-import { useState, use } from "react";
+import { useState, use, useMemo } from "react";
 
-import { NavSide, Nav, ProtectedRoute, Loading, InfoField } from "@/components";
+import { NavSide, Nav, ProtectedRoute, Loading, InfoField, ScheduleIcon, ClockIcon, InfoIcon } from "@/components";
 import { useFetch } from "@/hooks";
-import { API_ENPOINT_V1, FormatDate, FullName, GetNameInitials, UserPageTabs } from "@/../config";
+import { API_ENPOINT_V1, FormatDate, FormatHour, FullName, GetNameInitials, UserPageTabs } from "@/../config";
 
 const PeoplePage: FC<PeoplePageProps> = ({ params }) => {
 	const UserID: any = use(params as Promise<{ id: string }>);
 	const [activeTab, setActiveTab] = useState<TabType>("INFO");
+	const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
 	const { data, loading, error }: any = useFetch<any>(`${API_ENPOINT_V1.GET_PERSON_BY_ID}${UserID.id}`);
+
+	const groupedScreenshots = useMemo(() => {
+		if (!data?.screenshots) return {};
+
+		const groups: { [key: string]: any[] } = {};
+
+		data.screenshots.forEach((screenshot: any) => {
+			const hour = new Date(screenshot.timestamp).getUTCHours();
+
+			const start = new Date(screenshot.timestamp);
+			start.setUTCMinutes(0, 0, 0);
+			const end = new Date(start);
+			end.setUTCHours(start.getUTCHours() + 1);
+
+			const formatHourOnly = (d: Date) => {
+				let h = d.getUTCHours();
+				const m = d.getMinutes(); // always 0
+				const ampm = h >= 12 ? "pm" : "am";
+				h = h % 12;
+				h = h ? h : 12;
+				return `${h}:00 ${ampm}`;
+			};
+
+			const key = `${formatHourOnly(start)} - ${formatHourOnly(end)}`;
+
+			if (!groups[key]) {
+				groups[key] = [];
+			}
+			groups[key].push(screenshot);
+		});
+
+		return groups;
+	}, [data?.screenshots]);
 
 	if (loading) return <Loading />;
 	if (error) return <div>Error: {error}</div>;
 
-	const { id_user, name, last_name, roles, email, project, department, site, manager, status } = data[0];
-	const fullName = FullName(name, last_name);
+	console.log(data);
+	console.log(data.screenshots);
 
-	const timeline = [
+	const { id_user, name, last_name, roles, email, project, department, site, manager, status }: any = data.user[0];
+	const fullName: string = FullName(name, last_name);
+
+	const timeline: any = [
 		{
 			title: "Hired",
 			date: new Date(),
@@ -39,13 +76,20 @@ const PeoplePage: FC<PeoplePageProps> = ({ params }) => {
 		}
 	];
 
+	const InfoFields: any = [
+		{ label: "Work email", value: email || "No email" },
+		{ label: "Project", value: project || "Not assigned" },
+		{ label: "Department", value: department || "Not assigned" },
+		{ label: "Location", value: site || "Not assigned" }
+	];
+
 	return (
 		<ProtectedRoute>
 			<div className="flex min-h-screen bg-gray-50 font-sans text-gray-800">
 				<NavSide />
 
 				<div className="ml-24 flex flex-1 flex-col">
-					<Nav title={fullName}></Nav>
+					<Nav title={fullName} />
 
 					<main className="flex-1 space-y-6 bg-gray-50 p-6">
 						<section className="grid gap-6">
@@ -79,12 +123,7 @@ const PeoplePage: FC<PeoplePageProps> = ({ params }) => {
 								</div>
 
 								<div className="mt-6 grid gap-4 sm:grid-cols-3 lg:grid-cols-4">
-									{[
-										{ label: "Work email", value: email || "No email" },
-										{ label: "Project", value: project || "Not assigned" },
-										{ label: "Department", value: department || "Not assigned" },
-										{ label: "Location", value: site || "Not assigned" }
-									].map(item => (
+									{InfoFields.map((item: any) => (
 										<div key={item.label} className="rounded-2xl border border-gray-100 bg-gray-50/60 px-4 py-3">
 											<p className="text-xs font-semibold uppercase tracking-wide text-gray-500">{item.label}</p>
 											<p className="mt-1 text-sm font-medium text-gray-900">{item.value}</p>
@@ -94,29 +133,17 @@ const PeoplePage: FC<PeoplePageProps> = ({ params }) => {
 
 								<div className="mt-6 flex flex-wrap gap-4 text-sm text-gray-600">
 									<div className="flex items-center gap-2">
-										<svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-3.866 0-7 1.79-7 4v4h14v-4c0-2.21-3.134-4-7-4z" />
-											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 12a4 4 0 100-8 4 4 0 000 8z" />
-										</svg>
+										<ClockIcon />
 										<span>{new Date().toLocaleDateString()}</span>
 									</div>
-									{data[0]["He-hired"] && (
+									{data.user[0]["He-hired"] && (
 										<div className="flex items-center gap-2">
-											<svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-												<path
-													strokeLinecap="round"
-													strokeLinejoin="round"
-													strokeWidth={2}
-													d="M8 7V3m8 4V3m-9 8h10m-12 9h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v11a2 2 0 002 2z"
-												/>
-											</svg>
-											<span>Joined {FormatDate(data[0]["He-hired"])}</span>
+											<ScheduleIcon />
+											<span>Joined {FormatDate(data.user[0]["He-hired"])}</span>
 										</div>
 									)}
 									<div className="flex items-center gap-2">
-										<svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-										</svg>
+										<InfoIcon />
 										{/* <span>{lastTrackedLabel}</span> */}
 										<span>lastTrackedLabel</span>
 									</div>
@@ -188,9 +215,9 @@ const PeoplePage: FC<PeoplePageProps> = ({ params }) => {
 								{activeTab === "EMPLOYMENT" && (
 									<div className="space-y-6">
 										<div className="rounded-3xl border border-gray-100 bg-gray-50/60 p-6">
-											<h3 className="text-lg font-semibold text-gray-900">Employment timeline Example</h3>
+											<h3 className="text-lg font-semibold text-gray-900">Employment timeline</h3>
 											<div className="mt-6 space-y-6">
-												{timeline.map((item, index) => (
+												{timeline.map((item: any, index: number) => (
 													<div key={item.title} className="flex gap-4">
 														<div className="flex flex-col items-center">
 															<span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white">
@@ -247,19 +274,98 @@ const PeoplePage: FC<PeoplePageProps> = ({ params }) => {
 										</div>
 									</div>
 								)}
-								{activeTab === "CAPTURE" && <div>Still working on it</div>}
+								{activeTab === "CAPTURE" && (
+									<div className="space-y-8">
+										{Object.entries(groupedScreenshots).map(([timeRange, screenshots]: [string, any]) => (
+											<div key={timeRange} className="relative pl-8 border-l border-gray-200">
+												<div className="absolute -left-1.5 top-0 h-3 w-3 rounded-full border-2 border-gray-200 bg-white"></div>
+												<div className="mb-4 flex items-baseline gap-4">
+													<h3 className="text-lg font-medium text-gray-900">{timeRange}</h3>
+												</div>
+												<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 grid-flow-dense">
+													{screenshots.map((item: any, index: number) => {
+														const base64: string = Buffer.from(item.image_data).toString("base64");
+														const globalIndex = data.screenshots.findIndex((s: any) => s === item);
+														return (
+															<div key={index} className="bg-white border border-gray-100 p-3 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+																<div className="mb-2 flex justify-center">
+																	<span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">Cordoba Legal Group</span>
+																</div>
+																<img
+																	src={`data:image/png;base64,${base64}`}
+																	alt=""
+																	className="w-full h-[150px] object-cover rounded-lg cursor-pointer transition hover:opacity-90 border border-gray-100"
+																	onClick={() => setSelectedImageIndex(globalIndex)}
+																/>
 
-								{activeTab === "SETTINGS" && (
-									<div className="space-y-4">
-										<div className="rounded-3xl border border-dashed border-gray-300 p-4 text-sm text-gray-600">
-											Configura alertas y validaciones para mantener bajo control los accesos del colaborador.
-										</div>
+																<div className="mt-3 flex items-center justify-between">
+																	<span className="text-sm font-medium text-gray-700">{FormatHour(item.timestamp)}</span>
+																</div>
+															</div>
+														);
+													})}
+												</div>
+											</div>
+										))}
+										{Object.keys(groupedScreenshots).length === 0 && <div className="text-center py-10 text-gray-500">No screenshots available</div>}
 									</div>
 								)}
 							</div>
 						</section>
 					</main>
 				</div>
+
+				{selectedImageIndex !== null && (
+					<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm" onClick={() => setSelectedImageIndex(null)}>
+						{/* Top Bar */}
+						<div className="absolute left-4 top-4 text-lg font-medium text-white">
+							{selectedImageIndex + 1} / {data.screenshots.length}
+						</div>
+						<button onClick={() => setSelectedImageIndex(null)} className="absolute right-4 top-4 text-white hover:text-gray-300 cursor-pointer">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-8 w-8">
+								<path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+							</svg>
+						</button>
+
+						{/* Prev Button */}
+						{selectedImageIndex > 0 && (
+							<button
+								onClick={e => {
+									e.stopPropagation();
+									setSelectedImageIndex(selectedImageIndex - 1);
+								}}
+								className="absolute left-4 p-2 text-white hover:text-gray-300 cursor-pointer transition hover:scale-110"
+							>
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-10 w-10">
+									<path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+								</svg>
+							</button>
+						)}
+
+						{/* Image */}
+						<img
+							src={`data:image/png;base64,${Buffer.from(data.screenshots[selectedImageIndex].image_data).toString("base64")}`}
+							alt={`Screenshot ${selectedImageIndex + 1}`}
+							className="max-h-[90vh] max-w-[80vw] object-contain shadow-2xl"
+							onClick={e => e.stopPropagation()}
+						/>
+
+						{/* Next Button */}
+						{selectedImageIndex < data.screenshots.length - 1 && (
+							<button
+								onClick={e => {
+									e.stopPropagation();
+									setSelectedImageIndex(selectedImageIndex + 1);
+								}}
+								className="absolute right-4 p-2 text-white hover:text-gray-300 cursor-pointer transition hover:scale-110"
+							>
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-10 w-10">
+									<path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+								</svg>
+							</button>
+						)}
+					</div>
+				)}
 			</div>
 		</ProtectedRoute>
 	);

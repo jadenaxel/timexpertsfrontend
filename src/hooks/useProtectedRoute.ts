@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 
 import { validateToken, hasToken } from "@/utils";
-import { useAuth } from "@/contexts/auth-context";
+import { useAuth } from "@/contexts";
 
 const useProtectedRoute = () => {
 	const [isValidating, setIsValidating] = useState(true);

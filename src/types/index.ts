@@ -33,7 +33,7 @@ interface PeoplePageProps {
 	params: Promise<{ id: string }> | { id: string };
 }
 
-type TabType = "INFO" | "EMPLOYMENT" | "WORK_TIME" | "CAPTURE" | "SETTINGS";
+type TabType = "INFO" | "EMPLOYMENT" | "WORK_TIME" | "CAPTURE";
 
 interface InfoFieldProps {
 	label: string;
@@ -41,4 +41,13 @@ interface InfoFieldProps {
 	placeholder?: string;
 }
 
-export type { UseFetchOptions, UseFetchResult, ProtectedRouteProps, CardPeopleProps, PeoplePageProps, TabType, InfoFieldProps };
+interface AuthContextType {
+	isAuthenticated: boolean;
+	token: string | null;
+	isLoading: boolean;
+	employeeId: string | null;
+	login: (token: string) => void;
+	logout: () => Promise<void>;
+}
+
+export type { UseFetchOptions, UseFetchResult, ProtectedRouteProps, CardPeopleProps, PeoplePageProps, TabType, InfoFieldProps, AuthContextType };

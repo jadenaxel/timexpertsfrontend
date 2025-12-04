@@ -3,10 +3,11 @@
 import type { JSX } from "react";
 
 import { useState, useActionState, useEffect } from "react";
+
 import { login } from "../actions/auth";
-import { useAuth } from "@/contexts/auth-context";
+import { useAuth } from "@/contexts";
 import { useFetch } from "@/hooks";
-import { Loading } from "@/components";
+import { Loading, Error } from "@/components";
 
 const AuthPage = (): JSX.Element => {
 	const [state, formAction, isPending] = useActionState(login, { message: "", error: false });
@@ -32,7 +33,7 @@ const AuthPage = (): JSX.Element => {
 	}, [country]);
 
 	if (loading) return <Loading />;
-	if (error) return <div>Error fetching country data</div>;
+	if (error) return <Error />;
 
 	return (
 		<div className="min-h-screen w-full relative flex items-center justify-center overflow-hidden bg-neutral-900">

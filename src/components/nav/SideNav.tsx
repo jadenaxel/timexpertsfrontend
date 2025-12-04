@@ -5,7 +5,7 @@ import type { JSX } from "react";
 import NavButton from "./button";
 import { NavigationData } from "@/helpers";
 import { LogOutIcon } from "../icons";
-import { useAuth } from "@/contexts/auth-context";
+import { useAuth } from "@/contexts";
 
 const NavSide = (): JSX.Element => {
 	const { logout: logoutClient } = useAuth();
