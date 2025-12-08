@@ -2,7 +2,7 @@
 
 import type { JSX } from "react";
 
-import { NavSide, Nav, ProtectedRoute } from "@/components";
+import { NavSide, Nav, ProtectedRoute, UnderConstruction } from "@/components";
 
 const PayStub = (): JSX.Element => {
 	return (
@@ -16,7 +16,9 @@ const PayStub = (): JSX.Element => {
 					<Nav title="Pay Stub" />
 
 					{/* Page Content */}
-					<main className="flex-1 p-8"></main>
+					<main className="flex-1 p-8">
+						<UnderConstruction description="This view will be available soon. Reach out if you need early access." />
+					</main>
 				</div>
 			</div>
 		</ProtectedRoute>

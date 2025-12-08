@@ -35,6 +35,13 @@ interface PeoplePageProps {
 
 type TabType = "INFO" | "EMPLOYMENT" | "WORK_TIME" | "CAPTURE";
 
+enum EnumTabType {
+	INFO = "INFO",
+	EMPLOYMENT = "EMPLOYMENT",
+	WORK_TIME = "WORK_TIME",
+	CAPTURE = "CAPTURE"
+}
+
 interface InfoFieldProps {
 	label: string;
 	value?: ReactNode;
@@ -50,4 +57,38 @@ interface AuthContextType {
 	logout: () => Promise<void>;
 }
 
-export type { UseFetchOptions, UseFetchResult, ProtectedRouteProps, CardPeopleProps, PeoplePageProps, TabType, InfoFieldProps, AuthContextType };
+type ScreenShotItem = {
+	id: number | string;
+	filename?: string;
+	image_data: any;
+	timestamp: string;
+	machine_id?: string;
+};
+
+interface ScreenShotsCardProps {
+	user: string;
+	screenshots: ScreenShotItem[];
+}
+
+interface ImageOverlayProps {
+	images: any[];
+	selectedIndex: number;
+	onClose: () => void;
+	onIndexChange: (index: number) => void;
+}
+
+export type {
+	UseFetchOptions,
+	UseFetchResult,
+	ProtectedRouteProps,
+	CardPeopleProps,
+	PeoplePageProps,
+	TabType,
+	InfoFieldProps,
+	AuthContextType,
+	ScreenShotItem,
+	ScreenShotsCardProps,
+	ImageOverlayProps
+};
+
+export { EnumTabType };

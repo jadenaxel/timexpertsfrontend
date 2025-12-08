@@ -11,6 +11,12 @@ import PowerBIIcon from "./PowerBI";
 import PeopleIcon from "./People";
 import ClockIcon from "./Clock";
 import InfoIcon from "./Info";
+import ZoomInIcon from "./ZoomIn";
+import XIcon from "./X";
+import ZoomOutIcon from "./ZoomOut";
+import RowResetIcon from "./RowReset";
+import LeftArrowIcon from "./LeftArrow";
+import RightArrowIcon from "./RightArrow";
 
 export {
 	LogOutIcon,
@@ -25,5 +31,11 @@ export {
 	PowerBIIcon,
 	PeopleIcon,
 	ClockIcon,
-	InfoIcon
+	InfoIcon,
+	ZoomInIcon,
+	XIcon,
+	ZoomOutIcon,
+	RowResetIcon,
+	LeftArrowIcon,
+	RightArrowIcon
 };

@@ -25,28 +25,47 @@
 }
 
 .loader {
-	width: 90px;
-	height: 40px;
-	display: grid;
-	--c: #9900cc calc(100% - 5px), #000 calc(100% - 4px) 96%, #0000;
-	background: radial-gradient(farthest-side at bottom, var(--c)) 0 0, radial-gradient(farthest-side at top, var(--c)) 100% 100%;
-	background-size: calc(50% + 2px) 50%;
-	background-repeat: no-repeat;
-	animation: l14 1.5s infinite linear;
+	width: 65px;
+	aspect-ratio: 1;
+	position: relative;
 }
 .loader:before,
 .loader:after {
 	content: "";
-	grid-area: 1/1;
-	background: inherit;
-	animation: inherit;
-	animation-duration: 2s;
+	position: absolute;
+	border-radius: 50px;
+	box-shadow: 0 0 0 3px inset #000;
+	animation: l4 2.5s infinite;
 }
 .loader:after {
-	--s: -1;
+	animation-delay: -1.25s;
 }
-@keyframes l14 {
+@keyframes l4 {
+	0% {
+		inset: 0 35px 35px 0;
+	}
+	12.5% {
+		inset: 0 35px 0 0;
+	}
+	25% {
+		inset: 35px 35px 0 0;
+	}
+	37.5% {
+		inset: 35px 0 0 0;
+	}
+	50% {
+		inset: 35px 0 0 35px;
+	}
+	62.5% {
+		inset: 0 0 0 35px;
+	}
+	75% {
+		inset: 0 0 35px 35px;
+	}
+	87.5% {
+		inset: 0 0 35px 0;
+	}
 	100% {
-		transform: rotate(calc(var(--s, 1) * 1turn));
+		inset: 0 35px 35px 0;
 	}
 }
