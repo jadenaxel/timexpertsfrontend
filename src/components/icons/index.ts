@@ -17,6 +17,7 @@ import ZoomOutIcon from "./ZoomOut";
 import RowResetIcon from "./RowReset";
 import LeftArrowIcon from "./LeftArrow";
 import RightArrowIcon from "./RightArrow";
+import ActivityIcon from "./Activity";
 
 export {
 	LogOutIcon,
@@ -37,5 +38,6 @@ export {
 	ZoomOutIcon,
 	RowResetIcon,
 	LeftArrowIcon,
-	RightArrowIcon
+	RightArrowIcon,
+	ActivityIcon
 };

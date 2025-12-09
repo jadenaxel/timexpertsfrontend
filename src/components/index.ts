@@ -17,7 +17,8 @@ import {
 	ZoomOutIcon,
 	RowResetIcon,
 	LeftArrowIcon,
-	RightArrowIcon
+	RightArrowIcon,
+	ActivityIcon
 } from "./icons";
 import { NavSide, Nav } from "./nav";
 import { ProtectedRoute } from "./protected-route";
@@ -29,6 +30,7 @@ import Calendar from "./Calendar";
 import ScreenShotsCard from "./ScreenShots";
 import ImageOverlay from "./ImageOverlay";
 import UnderConstruction from "./UnderConstruction";
+import UserSelector from "./UserSelector";
 
 export {
 	LogOutIcon,
@@ -52,7 +54,8 @@ export {
 	XIcon,
 	RowResetIcon,
 	LeftArrowIcon,
-	RightArrowIcon
+	RightArrowIcon,
+	ActivityIcon
 };
 export { NavSide, Nav, ProtectedRoute };
-export { Loading, Error, InfoField, CardPeople, UnderConstruction };
+export { Loading, Error, InfoField, CardPeople, UnderConstruction, UserSelector };

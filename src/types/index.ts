@@ -1,3 +1,5 @@
+import type { JSX } from "react";
+
 import { ReactNode } from "react";
 
 interface UseFetchOptions<T = any> {
@@ -77,6 +79,18 @@ interface ImageOverlayProps {
 	onIndexChange: (index: number) => void;
 }
 
+type NavigationChild = {
+	title: string;
+	href: string;
+};
+
+type NavigationItem = {
+	icon: JSX.Element;
+	href?: string;
+	title: string;
+	children?: NavigationChild[];
+};
+
 export type {
 	UseFetchOptions,
 	UseFetchResult,
@@ -88,7 +102,9 @@ export type {
 	AuthContextType,
 	ScreenShotItem,
 	ScreenShotsCardProps,
-	ImageOverlayProps
+	ImageOverlayProps,
+	NavigationChild,
+	NavigationItem
 };
 
 export { EnumTabType };

@@ -1,6 +1,7 @@
 "use client";
 
 import type { JSX } from "react";
+
 import { useMemo } from "react";
 
 import { NavSide, Nav, ProtectedRoute, Loading, Error, ScreenShotsCard } from "@/components";

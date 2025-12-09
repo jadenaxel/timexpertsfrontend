@@ -20,7 +20,7 @@ const NavSide = (): JSX.Element => {
 			</div>
 			<nav className="flex flex-col space-y-4 w-full mb-2">
 				{NavigationData.map((item, index) => (
-					<NavButton key={index} icon={item.icon} href={item.href} title={item.title} />
+					<NavButton key={index} icon={item.icon} href={item.href} title={item.title} childrenItems={item.children} />
 				))}
 			</nav>
 			<div className="mt-auto w-full">
