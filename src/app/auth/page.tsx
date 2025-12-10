@@ -34,6 +34,8 @@ const AuthPage = (): JSX.Element => {
 
 	if (loading) return <Loading />;
 
+	console.log(error);
+
 	return (
 		<div className="min-h-screen w-full relative flex items-center justify-center overflow-hidden bg-neutral-900">
 			<div className="absolute inset-0 z-0 opacity-50">

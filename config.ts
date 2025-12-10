@@ -1,6 +1,6 @@
 import { ScreenShotItem, TabType } from "@/types";
 
-const API_URL_V1: string = "http://localhost:3001/api/v1";
+const API_URL_V1: string = `${process.env.API_URL}/api/v1` || "http://localhost:3001/api/v1";
 
 const API_ENPOINT_V1: Record<string, string> = {
 	GET_PEOPLE: `${API_URL_V1}/people`,
