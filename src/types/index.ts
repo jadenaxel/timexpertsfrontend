@@ -91,6 +91,64 @@ type NavigationItem = {
 	children?: NavigationChild[];
 };
 
+interface User {
+	id_user: string;
+	name: string;
+	last_name: string;
+}
+
+interface TimelineSegment {
+	id: string;
+	label: string;
+	width: string;
+	color: string;
+}
+
+interface DailyEntry {
+	id: string;
+	project: string;
+	client: string;
+	task: string;
+	color: string;
+	icon: string;
+	activity: string;
+	idle: string;
+	manual: string;
+	duration: string;
+	time: string;
+}
+
+interface WeeklyRow {
+	id: string;
+	project: string;
+	type: string;
+	color: string;
+	entries: Record<string, string>;
+	total: string;
+}
+
+interface CalendarDay {
+	id: string;
+	label: string;
+	month: string;
+	date: number;
+	events: {
+		id: string;
+		title: string;
+		time: string;
+		color: string;
+	}[];
+}
+
+interface UserSelectorProps {
+	users: User[];
+	selectedUserId: string;
+	onSelect: (userId: string) => void;
+	startDate?: Date;
+	endDate?: Date;
+	setUserTimeData?: (data: any[]) => void;
+}
+
 export type {
 	UseFetchOptions,
 	UseFetchResult,
@@ -104,7 +162,13 @@ export type {
 	ScreenShotsCardProps,
 	ImageOverlayProps,
 	NavigationChild,
-	NavigationItem
+	NavigationItem,
+	User,
+	TimelineSegment,
+	DailyEntry,
+	WeeklyRow,
+	CalendarDay,
+	UserSelectorProps
 };
 
 export { EnumTabType };

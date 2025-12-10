@@ -32,6 +32,8 @@ import ImageOverlay from "./ImageOverlay";
 import UnderConstruction from "./UnderConstruction";
 import UserSelector from "./UserSelector";
 
+import { TSDailyView, TSWeeklyView, TSCalendarView } from "./timesheets";
+
 export {
 	LogOutIcon,
 	SettingsIcon,
@@ -59,3 +61,5 @@ export {
 };
 export { NavSide, Nav, ProtectedRoute };
 export { Loading, Error, InfoField, CardPeople, UnderConstruction, UserSelector };
+
+export { TSDailyView, TSWeeklyView, TSCalendarView };

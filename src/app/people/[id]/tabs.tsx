@@ -7,6 +7,8 @@ import { UserPageTabs, IsFutureDate, IsToday, FormatHour, GenerateCalendar, Comp
 import { Calendar, InfoField } from "@/components";
 import { EnumTabType } from "@/types";
 
+const formatTimeUnit = (value?: number | string): string => String(value ?? 0).padStart(2, "0");
+
 const Tabs: FC<any> = (props: any): JSX.Element => {
 	const [activeTab, setActiveTab] = useState<TabType>(EnumTabType.INFO);
 	const [showCalendarCapture, setShowCalendarCapture] = useState<boolean>(false);
@@ -270,9 +272,10 @@ const Tabs: FC<any> = (props: any): JSX.Element => {
 										)}
 										{trackingData.length > 0 &&
 											trackingData.map((item: any, index: number) => {
-												const hours = item.total_interval.hour ?? "00";
-												const minutes = item.total_interval.minutes ?? "00";
-												const seconds = item.total_interval.seconds ?? "00";
+												const totalInterval = item.total_interval ?? {};
+												const hours = formatTimeUnit(totalInterval.hour);
+												const minutes = formatTimeUnit(totalInterval.minutes);
+												const seconds = formatTimeUnit(totalInterval.seconds);
 
 												return (
 													<tr key={index} className="hover:bg-gray-50 transition-colors">

@@ -12,18 +12,17 @@ const ActivityScreenshots: FC = (): JSX.Element => {
 	const [selectedUser, setSelectedUser] = useState<any>("");
 	const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
-	// Fetch all users for the dropdown
 	const { data: usersData, loading: usersLoading, error: usersError } = useFetch<any[]>(API_ENPOINT_V1.GET_PEOPLE);
 
-	// Set default user when users are loaded
 	useEffect(() => {
 		if (usersData && usersData.length > 0 && !selectedUser) {
 			setSelectedUser(usersData[0].id_user);
 		}
 	}, [usersData, selectedUser]);
 
-	// Fetch selected user's data (including screenshots)
-	const { data: userData, loading: userLoading }: any = useFetch<any>(selectedUser ? `${API_ENPOINT_V1.GET_PERSON_BY_ID}${selectedUser}` : null);
+	const ENDPOINT: any = selectedUser ? `${API_ENPOINT_V1.GET_PERSON_BY_ID}${selectedUser}` : null;
+
+	const { data: userData, loading: userLoading }: any = useFetch<any>(ENDPOINT);
 
 	const calendarDays = useMemo(() => GenerateCalendar(selectedDate), [selectedDate]);
 
@@ -64,7 +63,6 @@ const ActivityScreenshots: FC = (): JSX.Element => {
 		return groups;
 	}, [userData, selectedDate]);
 
-	// Flatten screenshots for the overlay
 	const currentDayScreenshots = useMemo(() => {
 		return Object.values(groupedScreenshots).flat();
 	}, [groupedScreenshots]);
@@ -80,10 +78,8 @@ const ActivityScreenshots: FC = (): JSX.Element => {
 					<Nav title="Screenshots" />
 
 					<main className="flex-1 p-8">
-						{/* Controls Header */}
 						<div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-white p-4 shadow-sm border border-gray-100">
 							<div className="flex items-center gap-4">
-								{/* Date Navigation */}
 								<div className="flex items-center gap-2">
 									<button
 										onClick={() => {
@@ -93,7 +89,6 @@ const ActivityScreenshots: FC = (): JSX.Element => {
 										}}
 										className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
 									>
-										{/* To Component */}
 										<svg fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-5 w-5 text-gray-600">
 											<path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
 										</svg>
@@ -130,14 +125,12 @@ const ActivityScreenshots: FC = (): JSX.Element => {
 
 								<div className="h-8 w-px bg-gray-200"></div>
 
-								{/* User Select */}
 								<div className="relative min-w-[340px]">
 									<UserSelector users={usersData || []} selectedUserId={selectedUser} onSelect={setSelectedUser} />
 								</div>
 							</div>
 						</div>
 
-						{/* Content */}
 						{userLoading ? (
 							<div className="flex h-64 items-center justify-center">
 								<div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
@@ -153,7 +146,6 @@ const ActivityScreenshots: FC = (): JSX.Element => {
 										<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 grid-flow-dense">
 											{screenshots.map((item: any, index: number) => {
 												const base64: string = EncodeImage(item.image_data);
-												// Find index in the flattened array for the overlay
 												const overlayIndex = currentDayScreenshots.findIndex(s => s === item);
 
 												return (

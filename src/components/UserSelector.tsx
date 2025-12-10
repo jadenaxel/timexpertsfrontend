@@ -1,26 +1,57 @@
 import type { FC, JSX } from "react";
-import { useState, useEffect, useRef } from "react";
+import type { UserSelectorProps } from "@/types";
+
+import { useState, useEffect, useRef, useCallback } from "react";
+
 import { SearchIcon, XIcon, PeopleIcon } from "./icons";
-import { FormatUserName } from "@/../config";
+import { FormatUserName, API_ENPOINT_V1 } from "@/../config";
+import { getAuthHeader } from "@/utils";
 
-interface User {
-	id_user: string;
-	name: string;
-	last_name: string;
-}
-
-interface UserSelectorProps {
-	users: User[];
-	selectedUserId: string;
-	onSelect: (userId: string) => void;
-}
-
-const UserSelector: FC<UserSelectorProps> = ({ users, selectedUserId, onSelect }): JSX.Element => {
+const UserSelector: FC<UserSelectorProps> = ({ users, selectedUserId, onSelect, startDate, endDate, setUserTimeData }): JSX.Element => {
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 	const [searchQuery, setSearchQuery] = useState<string>("");
 	const dropdownRef = useRef<HTMLDivElement>(null);
 
 	const selectedUser = users.find(u => u.id_user === selectedUserId);
+
+	const fetchUserTimeData = useCallback(
+		async (userId: string) => {
+			if (!setUserTimeData || !startDate || !endDate) return;
+
+			const start: string = startDate.toISOString();
+			const end: string = endDate.toISOString();
+
+			try {
+				const response = await fetch(`${API_ENPOINT_V1.GET_PERSON_BY_ID}ltoribio/date`, {
+					method: "POST",
+					body: JSON.stringify({ from: start, to: end }),
+					headers: {
+						"Content-Type": "application/json",
+						...getAuthHeader()
+					}
+				});
+
+				if (!response.ok) {
+					console.error(`Error fetching time data for ${userId}: ${response.status} ${response.statusText}`);
+					setUserTimeData([]);
+					return;
+				}
+
+				const data = await response.json();
+				console.log(data);
+				setUserTimeData(data ?? []);
+			} catch (error) {
+				console.error("Error fetching time data", error);
+				setUserTimeData([]);
+			}
+		},
+		[endDate, setUserTimeData, startDate]
+	);
+
+	const handleOnSelectUser = (userId: string) => {
+		onSelect(userId);
+		setIsOpen(false);
+	};
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
@@ -34,6 +65,11 @@ const UserSelector: FC<UserSelectorProps> = ({ users, selectedUserId, onSelect }
 			document.removeEventListener("mousedown", handleClickOutside);
 		};
 	}, []);
+
+	useEffect(() => {
+		if (!selectedUserId || !startDate || !endDate || !setUserTimeData) return;
+		void fetchUserTimeData(selectedUserId);
+	}, [endDate, fetchUserTimeData, selectedUserId, setUserTimeData, startDate]);
 
 	const filteredUsers = users.filter(user => {
 		const fullName = `${user.name} ${user.last_name}`.toLowerCase();
@@ -108,11 +144,8 @@ const UserSelector: FC<UserSelectorProps> = ({ users, selectedUserId, onSelect }
 										<button
 											type="button"
 											key={user.id_user}
-											onClick={() => {
-												onSelect(user.id_user);
-												setIsOpen(false);
-											}}
-											className={`group relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-all ${
+											onClick={async () => await handleOnSelectUser(user.id_user)}
+											className={`group relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-all cursor-pointer ${
 												isSelected
 													? "bg-blue-50/80 text-blue-900 ring-1 ring-blue-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]"
 													: "text-gray-700 hover:bg-gray-50/70 hover:text-gray-900"
