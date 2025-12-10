@@ -38,10 +38,13 @@ const Home = (): JSX.Element => {
 					<Nav title="Dashboard" />
 
 					<main className="flex-1 p-8">
-						<div className="flex flex-col gap-6">
-							{groupedScreenShots.map(group => (
-								<ScreenShotsCard key={group.user} user={group.user} screenshots={group.screenshots} />
-							))}
+						<div>
+							<h1 className="text-sm font-light mb-4 uppercase ">Recent Activity</h1>
+							<div className="flex flex-col gap-6">
+								{groupedScreenShots.map(group => (
+									<ScreenShotsCard key={group.user} user={group.user} screenshots={group.screenshots} />
+								))}
+							</div>
 						</div>
 					</main>
 				</div>
