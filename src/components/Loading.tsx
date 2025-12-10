@@ -1,8 +1,8 @@
 import type { FC, JSX } from "react";
 
-const Loading: FC = (): JSX.Element => {
+const Loading: FC<any> = (props: any): JSX.Element => {
 	return (
-		<div className="flex justify-center items-center h-screen">
+		<div className={`flex justify-center items-center ${props.full ? "h-screen" : ""}`}>
 			<div className="loader"></div>
 		</div>
 	);

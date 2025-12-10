@@ -32,9 +32,7 @@ const AuthPage = (): JSX.Element => {
 		}
 	}, [country]);
 
-	if (loading) return <Loading />;
-
-	console.log(error);
+	if (loading) return <Loading full />;
 
 	return (
 		<div className="min-h-screen w-full relative flex items-center justify-center overflow-hidden bg-neutral-900">

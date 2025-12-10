@@ -4,7 +4,7 @@ import type { TabType } from "@/types";
 import { useState, useMemo } from "react";
 
 import { UserPageTabs, IsFutureDate, IsToday, FormatHour, GenerateCalendar, CompanyName, API_ENPOINT_V1 } from "@/../config";
-import { Calendar, InfoField } from "@/components";
+import { Calendar, InfoField, Loading } from "@/components";
 import { EnumTabType } from "@/types";
 
 const formatTimeUnit = (value?: number | string): string => String(value ?? 0).padStart(2, "0");
@@ -17,6 +17,7 @@ const Tabs: FC<any> = (props: any): JSX.Element => {
 	const [startDate, setStartDate] = useState<Date>(new Date());
 	const [endDate, setEndDate] = useState<Date>(new Date());
 	const [trackingData, setTrackingData] = useState<any>([]);
+	const [loading, setLoading] = useState<boolean>(false);
 
 	const { data, selectedDate, setSelectedDate, setSelectedImageIndex }: any = props;
 	const { id_user, roles, email, department, site, manager, status }: any = data.user[0];
@@ -82,6 +83,7 @@ const Tabs: FC<any> = (props: any): JSX.Element => {
 		const start: string = new Date(startDate).toISOString();
 		const end: string = new Date(endDate).toISOString();
 
+		setLoading(true);
 		const response = await fetch(`${API_ENPOINT_V1.GET_PERSON_BY_ID}ltoribio/date`, {
 			method: "POST",
 			body: JSON.stringify({ from: start, to: end }),
@@ -91,6 +93,7 @@ const Tabs: FC<any> = (props: any): JSX.Element => {
 		});
 		const data = await response.json();
 		setTrackingData(data);
+		setLoading(false);
 	};
 
 	return (
@@ -254,23 +257,36 @@ const Tabs: FC<any> = (props: any): JSX.Element => {
 										</tr>
 									</thead>
 									<tbody className="divide-y divide-gray-200">
-										{trackingData.length === 0 && (
+										{trackingData.length === 0 &&
+											(loading ? (
+												<tr>
+													<td colSpan={7} className="px-4 py-12 text-center">
+														<Loading />
+													</td>
+												</tr>
+											) : (
+												<tr>
+													<td colSpan={7} className="px-4 py-12 text-center">
+														<div className="flex flex-col items-center justify-center text-gray-500">
+															<svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-8 w-8 mb-2 text-gray-400">
+																<path
+																	strokeLinecap="round"
+																	strokeLinejoin="round"
+																	d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776"
+																/>
+															</svg>
+															<p className="text-sm font-medium">No data available</p>
+														</div>
+													</td>
+												</tr>
+											))}
+										{trackingData.length > 0 && loading ? (
 											<tr>
 												<td colSpan={7} className="px-4 py-12 text-center">
-													<div className="flex flex-col items-center justify-center text-gray-500">
-														<svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-8 w-8 mb-2 text-gray-400">
-															<path
-																strokeLinecap="round"
-																strokeLinejoin="round"
-																d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776"
-															/>
-														</svg>
-														<p className="text-sm font-medium">No data available</p>
-													</div>
+													<Loading />
 												</td>
 											</tr>
-										)}
-										{trackingData.length > 0 &&
+										) : (
 											trackingData.map((item: any, index: number) => {
 												const totalInterval = item.total_interval ?? {};
 												const hours = formatTimeUnit(totalInterval.hour);
@@ -285,7 +301,8 @@ const Tabs: FC<any> = (props: any): JSX.Element => {
 														</td>
 													</tr>
 												);
-											})}
+											})
+										)}
 									</tbody>
 								</table>
 							</div>

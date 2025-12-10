@@ -55,7 +55,7 @@ const People: FC = (): JSX.Element => {
 		window.scrollTo({ top: 0, behavior: "smooth" });
 	}, [currentPage]);
 
-	if (loading) return <Loading />;
+	if (loading) return <Loading full />;
 	if (error) return <Error />;
 
 	return (

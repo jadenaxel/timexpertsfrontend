@@ -1,11 +1,12 @@
 import { ScreenShotItem, TabType } from "@/types";
 
-const API_URL_V1: string = `${process.env.API_URL}/api/v1` || "http://localhost:3001/api/v1";
+const API_URL_V1: string = process.env.API_URL !== undefined ? `${process.env.API_URL}/api/v1` : "http://localhost:3001/api/v1";
 
 const API_ENPOINT_V1: Record<string, string> = {
 	GET_PEOPLE: `${API_URL_V1}/people`,
 	GET_PERSON_BY_ID: `${API_URL_V1}/people/`,
-	GET_LASTEST_SCREENSHOTS_PER_USER: `${API_URL_V1}/dashboard`
+	GET_LASTEST_SCREENSHOTS_PER_USER: `${API_URL_V1}/dashboard/screenshots`,
+	GET_MEMBER_TIME: `${API_URL_V1}/dashboard/time`
 };
 
 const JWT_SECRET: string = process.env.JWT_SECRET || "test";

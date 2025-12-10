@@ -5,7 +5,7 @@ import type { PeoplePageProps } from "@/types";
 
 import { useState, use } from "react";
 
-import { NavSide, Nav, ProtectedRoute, Loading, ScheduleIcon, ClockIcon, InfoIcon, ImageOverlay } from "@/components";
+import { NavSide, Nav, ProtectedRoute, Loading, ScheduleIcon, ClockIcon, InfoIcon, ImageOverlay, Error } from "@/components";
 import { useFetch } from "@/hooks";
 import { API_ENPOINT_V1, FormatDate, FullName, GetNameInitials } from "@/../config";
 
@@ -15,16 +15,12 @@ const PeoplePage: FC<PeoplePageProps> = ({ params }) => {
 	const UserID: any = use(params as Promise<{ id: string }>);
 
 	const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
-	const [zoomLevel, setZoomLevel] = useState<number>(1);
-	const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-	const [isDragging, setIsDragging] = useState<boolean>(false);
-	const [dragStart, setDragStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 	const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
 	const { data, loading, error }: any = useFetch<any>(`${API_ENPOINT_V1.GET_PERSON_BY_ID}${UserID.id}`);
 
-	if (loading) return <Loading />;
-	if (error) return <div>Error: {error}</div>;
+	if (loading) return <Loading full />;
+	if (error) return <Error />;
 
 	const { id_user, name, last_name, roles, email, project, department, site, status }: any = data.user[0];
 	const fullName: string = FullName(name, last_name);
@@ -112,8 +108,6 @@ const PeoplePage: FC<PeoplePageProps> = ({ params }) => {
 					selectedIndex={selectedImageIndex ?? -1}
 					onClose={() => {
 						setSelectedImageIndex(null);
-						setZoomLevel(1);
-						setPan({ x: 0, y: 0 });
 					}}
 					onIndexChange={setSelectedImageIndex}
 				/>

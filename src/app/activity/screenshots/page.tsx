@@ -67,7 +67,7 @@ const ActivityScreenshots: FC = (): JSX.Element => {
 		return Object.values(groupedScreenshots).flat();
 	}, [groupedScreenshots]);
 
-	if (usersLoading) return <Loading />;
+	if (usersLoading) return <Loading full />;
 	if (usersError) return <Error />;
 
 	return (
@@ -132,9 +132,7 @@ const ActivityScreenshots: FC = (): JSX.Element => {
 						</div>
 
 						{userLoading ? (
-							<div className="flex h-64 items-center justify-center">
-								<div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
-							</div>
+							<Loading />
 						) : Object.keys(groupedScreenshots).length > 0 ? (
 							<div className="space-y-8">
 								{Object.entries(groupedScreenshots).map(([timeRange, screenshots]: [string, any]) => (

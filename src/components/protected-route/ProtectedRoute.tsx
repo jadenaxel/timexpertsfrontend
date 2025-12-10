@@ -9,7 +9,7 @@ import Loading from "../Loading";
 const ProtectedRoute: FC<ProtectedRouteProps> = ({ children, errorMessage = "No pudimos contactar al servidor de autenticación." }: ProtectedRouteProps): JSX.Element | null => {
 	const { isValidating, isValid, error, retry } = useProtectedRoute();
 
-	if (isValidating) return <Loading />;
+	if (isValidating) return <Loading full />;
 
 	if (error) {
 		return (

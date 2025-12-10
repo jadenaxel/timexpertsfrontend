@@ -381,7 +381,7 @@ const ViewEdit: FC = (): JSX.Element => {
 		}
 	};
 
-	if (usersLoading) return <Loading />;
+	if (usersLoading) return <Loading full />;
 	if (usersError) return <Error />;
 
 	return (
