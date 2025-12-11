@@ -1,7 +1,7 @@
 import type { JSX, FC } from "react";
 
 import { Calendar, UserSelector } from "@/components";
-import { IsToday, IsFutureDate } from "@/../config";
+import { IsToday, IsFutureDate } from "@/utils";
 
 const ActivityScreenShotHeader: FC<any> = (props: any): JSX.Element => {
 	const { selectedDate, setSelectedDate, showCalendar, setShowCalendar, calendarDays, usersData, selectedUser, setSelectedUser } = props;

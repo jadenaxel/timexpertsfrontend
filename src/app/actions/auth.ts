@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 
-import { API_URL_V1 } from "@/../config";
+import { API_URL_V1 } from "@/config";
 
 interface LoginState {
 	message?: string;

@@ -7,7 +7,8 @@ import { useState, use } from "react";
 
 import { NavSide, Nav, ProtectedRoute, Loading, ScheduleIcon, ClockIcon, InfoIcon, ImageOverlay, Error } from "@/components";
 import { useFetch } from "@/hooks";
-import { API_ENPOINT_V1, FormatDate, FullName, GetNameInitials } from "@/../config";
+import { API_ENPOINT_V1 } from "@/config";
+import { FullName, GetNameInitials, FormatDate } from "@/utils";
 
 import Tabs from "./tabs";
 

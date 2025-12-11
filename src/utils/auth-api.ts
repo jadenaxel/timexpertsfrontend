@@ -1,14 +1,7 @@
-import { API_URL_V1 } from "@/../config";
+import type { ValidateTokenResponse } from "@/types";
+
+import { API_URL_V1 } from "@/config";
 import { getToken } from "./token";
-
-type TokenErrorType = "invalid" | "network";
-
-export interface ValidateTokenResponse {
-	valid: boolean;
-	employeeId?: string | null;
-	message?: string;
-	errorType?: TokenErrorType;
-}
 
 export async function validateToken(): Promise<ValidateTokenResponse> {
 	const token = getToken();
@@ -35,7 +28,7 @@ export async function validateToken(): Promise<ValidateTokenResponse> {
 
 		let data: Record<string, unknown> = {};
 		data = await response.json();
-	
+
 		const explicitInvalid = data?.valid === false || data?.success === false;
 		if (explicitInvalid) {
 			return {

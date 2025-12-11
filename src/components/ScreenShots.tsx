@@ -3,9 +3,10 @@ import type { ScreenShotItem, ScreenShotsCardProps } from "@/types";
 
 import { useState } from "react";
 
-import { EncodeImage, FormatHour, FormatUserName } from "@/../config";
+import { EncodeImage, FormatUserName } from "@/../config";
 import ImageOverlay from "./ImageOverlay";
 import { PeopleIcon } from "./icons";
+import { FormatHour } from "@/utils";
 
 const ScreenShotsCard: FC<ScreenShotsCardProps> = ({ user, screenshots }): JSX.Element => {
 	const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);

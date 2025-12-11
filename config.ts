@@ -1,55 +1,9 @@
 import { ScreenShotItem, TabType } from "@/types";
 
-const API_URL_V1: string = process.env.API_URL !== undefined ? `${process.env.API_URL}/api/v1` : "http://localhost:3001/api/v1";
-
-const API_ENPOINT_V1: Record<string, string> = {
-	GET_PEOPLE: `${API_URL_V1}/people`,
-	GET_PERSON_BY_ID: `${API_URL_V1}/people/`,
-	GET_LASTEST_SCREENSHOTS_PER_USER: `${API_URL_V1}/dashboard/screenshots`,
-	GET_MEMBER_TIME_DAY: `${API_URL_V1}/dashboard/time/day`,
-	GET_MEMBER_TIME_WEEK: `${API_URL_V1}/dashboard/time/week`,
-	GET_USER_TIME_DAILY: `${API_URL_V1}/timesheet/daily`,
-	GET_USER_TIME_WEEKLY: `${API_URL_V1}/timesheet/weekly`
-};
-
+// Standard Config
 const JWT_SECRET: string = process.env.JWT_SECRET || "test";
+const CompanyName: string = "Cordoba Legal Group";
 const ITEMS_PER_PAGE: number = 50;
-
-const FullName = (name: string, last_name: string): string => `${name} ${last_name}`;
-const GetNameInitials = (name: string, last_name: string): string => `${name.charAt(0).toUpperCase()}${last_name.charAt(0).toUpperCase()}`;
-const FormatDate = (date: string): string => {
-	if (!date) return "";
-	try {
-		return new Date(date).toLocaleDateString("en-US", {
-			weekday: "short",
-			month: "short",
-			day: "numeric",
-			year: "numeric"
-		});
-	} catch {
-		return date;
-	}
-};
-const FormatHour = (hour: string): string => {
-	if (!hour) return "";
-	try {
-		return new Date(hour).toLocaleTimeString("en-US", {
-			hour: "2-digit",
-			minute: "2-digit",
-			hour12: true,
-			timeZone: "UTC"
-		});
-	} catch {
-		return hour;
-	}
-};
-
-const IsSameDay = (date1: Date, date2: Date) => {
-	return date1.getFullYear() === date2.getFullYear() && date1.getMonth() === date2.getMonth() && date1.getDate() === date2.getDate();
-};
-
-const IsToday = (date: Date) => IsSameDay(date, new Date());
-const IsFutureDate = (date: Date) => date > new Date();
 
 const UserPageTabs: any[] = [
 	{ id: "INFO" as TabType, label: "INFO" },
@@ -57,28 +11,6 @@ const UserPageTabs: any[] = [
 	{ id: "WORK_TIME" as TabType, label: "WORK TIME" },
 	{ id: "CAPTURE" as TabType, label: "CAPTURES" }
 ];
-
-const GenerateCalendar = (date: Date): (number | null)[] => {
-	const year: number = date.getFullYear();
-	const month: number = date.getMonth();
-	const firstDay: Date = new Date(year, month, 1);
-	const lastDay: Date = new Date(year, month + 1, 0);
-	const daysInMonth: number = lastDay.getDate();
-	const startingDayOfWeek: number = firstDay.getDay();
-
-	const days: (number | null)[] = [];
-	for (let i = 0; i < startingDayOfWeek; i++) {
-		days.push(null);
-	}
-	for (let i = 1; i <= daysInMonth; i++) {
-		days.push(i);
-	}
-	return days;
-};
-
-const MonthNames: string[] = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
-const CompanyName: string = "Cordoba Legal Group";
 
 const EncodeImage = (image: ScreenShotItem["image_data"]): string => {
 	if (!image) return "";
@@ -103,25 +35,4 @@ const FormatUserName = (user: string): string =>
 		.map(part => part.charAt(0).toUpperCase() + part.slice(1))
 		.join(" ") || user;
 
-const FormatTimeUnit = (value?: number | string): string => String(value ?? 0).padStart(2, "0");
-
-export {
-	API_URL_V1,
-	API_ENPOINT_V1,
-	JWT_SECRET,
-	ITEMS_PER_PAGE,
-	FullName,
-	GetNameInitials,
-	FormatDate,
-	FormatHour,
-	IsSameDay,
-	IsToday,
-	IsFutureDate,
-	UserPageTabs,
-	GenerateCalendar,
-	MonthNames,
-	EncodeImage,
-	CompanyName,
-	FormatUserName,
-	FormatTimeUnit
-};
+export { JWT_SECRET, ITEMS_PER_PAGE, UserPageTabs, EncodeImage, CompanyName, FormatUserName };

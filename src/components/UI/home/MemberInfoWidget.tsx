@@ -1,6 +1,6 @@
 import type { JSX, FC } from "react";
 
-import { FormatTimeUnit } from "@/../config";
+import { FormatTimeUnit } from "@/utils";
 import { Loading } from "@/components";
 
 const MemberInfoWidget: FC<any> = (props: any): JSX.Element => {

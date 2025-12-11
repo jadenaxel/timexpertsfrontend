@@ -6,7 +6,7 @@ import { useMemo } from "react";
 
 import { NavSide, Nav, ProtectedRoute, ScreenShotsWidget, MemberInfoWidget } from "@/components";
 import { useFetch } from "@/hooks";
-import { API_ENPOINT_V1 } from "@/../config";
+import { API_ENPOINT_V1 } from "@/config";
 
 const Home = (): JSX.Element => {
 	const { data, loading, error } = useFetch<any[]>(API_ENPOINT_V1.GET_LASTEST_SCREENSHOTS_PER_USER);

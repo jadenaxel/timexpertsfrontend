@@ -2,7 +2,7 @@ import type { JSX, FC } from "react";
 
 import { ScheduleIcon } from "./icons";
 
-import { IsFutureDate, IsSameDay, IsToday, MonthNames } from "@/../config";
+import { IsFutureDate, IsSameDay, IsToday, MonthNames } from "@/utils";
 
 const Calendar: FC<any> = (props: any): JSX.Element => {
 	const { selectedDate, setShowCalendar, showCalendar, setSelectedDate, calendarDays }: any = props;
@@ -88,10 +88,10 @@ const Calendar: FC<any> = (props: any): JSX.Element => {
 										isFuture
 											? "text-gray-300 cursor-not-allowed"
 											: isSelectedDay
-												? "bg-blue-600 text-white font-semibold"
-												: isTodayDay
-													? "bg-blue-50 text-blue-600 font-semibold"
-													: "text-gray-900 hover:bg-gray-100 cursor-pointer"
+											? "bg-blue-600 text-white font-semibold"
+											: isTodayDay
+											? "bg-blue-50 text-blue-600 font-semibold"
+											: "text-gray-900 hover:bg-gray-100 cursor-pointer"
 									}`}
 								>
 									{day}

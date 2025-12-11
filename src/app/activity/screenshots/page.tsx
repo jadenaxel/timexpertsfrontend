@@ -6,7 +6,8 @@ import { useState, useMemo, useEffect } from "react";
 
 import { NavSide, Nav, ProtectedRoute, Loading, Error, ImageOverlay, ActivityScreenShotHeader, ActivityNoScreenshots, ActivityScreenshotsCard } from "@/components";
 import { useFetch } from "@/hooks";
-import { API_ENPOINT_V1, GenerateCalendar } from "@/../config";
+import { GenerateCalendar } from "@/utils";
+import { API_ENPOINT_V1 } from "@/config";
 
 const ActivityScreenshots: FC = (): JSX.Element => {
 	const [selectedDate, setSelectedDate] = useState<Date>(new Date());

@@ -1,6 +1,7 @@
 import type { JSX, FC } from "react";
 
-import { EncodeImage, FormatHour, CompanyName } from "@/../config";
+import { EncodeImage, CompanyName } from "@/../config";
+import { FormatHour } from "@/utils";
 
 const ActivityScreenshotsCard: FC<any> = (props: any): JSX.Element => {
 	const { groupedScreenshots, currentDayScreenshots, setSelectedImageIndex } = props;

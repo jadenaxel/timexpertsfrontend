@@ -4,7 +4,8 @@ import type { UserSelectorProps } from "@/types";
 import { useState, useEffect, useRef, useCallback } from "react";
 
 import { SearchIcon, XIcon, PeopleIcon } from "./icons";
-import { FormatUserName, API_ENPOINT_V1 } from "@/../config";
+import { FormatUserName } from "@/../config";
+import { API_ENPOINT_V1 } from "@/config";
 import { getAuthHeader } from "@/utils";
 
 const UserSelector: FC<UserSelectorProps> = ({ users, selectedUserId, onSelect, startDate, endDate, setUserTimeData }): JSX.Element => {

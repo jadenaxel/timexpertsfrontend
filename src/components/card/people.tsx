@@ -3,7 +3,7 @@ import type { CardPeopleProps } from "@/types";
 
 import { useState, useEffect, useRef } from "react";
 
-import { FormatDate, GetNameInitials } from "@/../config";
+import { GetNameInitials, FormatDate } from "@/utils";
 
 const CardPeople: FC<CardPeopleProps> = (props): JSX.Element => {
 	const { name, last_name, email = "", status = "Active", role = "User", enabled = true, roles, department } = props;

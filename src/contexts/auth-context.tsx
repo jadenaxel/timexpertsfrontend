@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
 
 import { useRouter, usePathname } from "next/navigation";
 
@@ -18,7 +18,12 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const router = useRouter();
 	const pathname = usePathname();
 
+	const hasInitialized = useRef(false);
+
 	useEffect(() => {
+		if (hasInitialized.current) return;
+		hasInitialized.current = true;
+
 		const initAuth = async () => {
 			const storedToken = getToken();
 
@@ -37,6 +42,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 				removeToken();
 			} else if (result.errorType === "network") {
 				setTokenState(storedToken);
+				setIsAuthenticated(true);
 			}
 
 			setIsLoading(false);

@@ -8,7 +8,8 @@ import Link from "next/link";
 import { NavSide, Nav, ProtectedRoute, Loading, Error, CardPeople, PoepleSearch, PeopleFilter, PeopleTable, PeoplePagination, PeopleNotFound } from "@/components";
 import { useFetch } from "@/hooks";
 import { UseFetchResult } from "@/types";
-import { API_ENPOINT_V1, ITEMS_PER_PAGE } from "@/../config";
+import { ITEMS_PER_PAGE } from "@/../config";
+import { API_ENPOINT_V1 } from "@/config";
 
 const People: FC = (): JSX.Element => {
 	const { data, loading, error }: UseFetchResult<any> = useFetch(API_ENPOINT_V1.GET_PEOPLE);

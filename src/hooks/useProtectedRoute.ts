@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { validateToken, hasToken } from "@/utils";
 import { useAuth } from "@/contexts";
@@ -7,8 +7,7 @@ const useProtectedRoute = () => {
 	const [isValidating, setIsValidating] = useState(true);
 	const [isValid, setIsValid] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const { logout, isAuthenticated } = useAuth();
-	const hasValidated = useRef(false);
+	const { logout, isAuthenticated, isLoading } = useAuth();
 
 	const runValidation = useCallback(async () => {
 		setIsValidating(true);
@@ -30,10 +29,13 @@ const useProtectedRoute = () => {
 		const result = await validateToken();
 
 		if (!result.valid) {
-			if (result.errorType === "network") setError(result.message ?? "No pudimos validar tu sesión. Intenta nuevamente.");
-			else await logout();
-
-			setIsValid(false);
+			if (result.errorType === "network") {
+				setError(result.message ?? "No pudimos validar tu sesión. Intenta nuevamente.");
+				setIsValid(true);
+			} else {
+				await logout();
+				setIsValid(false);
+			}
 		} else {
 			setIsValid(true);
 		}
@@ -42,13 +44,9 @@ const useProtectedRoute = () => {
 	}, [logout, isAuthenticated]);
 
 	useEffect(() => {
-		// Prevent double validation on mount
-		if (hasValidated.current) return;
-		hasValidated.current = true;
-
+		if (isLoading) return;
 		runValidation();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []); // Empty dependency array - only run once on mount
+	}, [isLoading, runValidation]);
 
 	return { isValidating, isValid, error, retry: runValidation };
 };

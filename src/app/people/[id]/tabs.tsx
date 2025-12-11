@@ -1,11 +1,12 @@
 import type { JSX, FC } from "react";
-import type { TabType } from "@/types";
+import { type TabType, EnumTabType } from "@/types";
 
 import { useState, useMemo } from "react";
 
-import { UserPageTabs, IsFutureDate, IsToday, FormatHour, GenerateCalendar, CompanyName, API_ENPOINT_V1 } from "@/../config";
+import { UserPageTabs, CompanyName } from "@/../config";
+import { API_ENPOINT_V1 } from "@/config";
 import { Calendar, InfoField, Loading } from "@/components";
-import { EnumTabType } from "@/types";
+import { IsFutureDate, IsToday, FormatHour, GenerateCalendar } from "@/utils";
 
 const formatTimeUnit = (value?: number | string): string => String(value ?? 0).padStart(2, "0");
 

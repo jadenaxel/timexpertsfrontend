@@ -149,6 +149,19 @@ interface UserSelectorProps {
 	setUserTimeData?: (data: any[]) => void;
 }
 
+type WeekDayDisplay = { key: string; label: string; month: string; date: number; value: Date };
+type DailyRowData = { id: string; project: string; type?: string; activity: string; duration: string; durationSeconds: number; color: string };
+type DateRange = { start: Date; end: Date };
+type TimesheetView = "daily" | "weekly";
+type TokenErrorType = "invalid" | "network";
+
+interface ValidateTokenResponse {
+	valid: boolean;
+	employeeId?: string | null;
+	message?: string;
+	errorType?: TokenErrorType;
+}
+
 export type {
 	UseFetchOptions,
 	UseFetchResult,
@@ -168,7 +181,13 @@ export type {
 	DailyEntry,
 	WeeklyRow,
 	CalendarDay,
-	UserSelectorProps
+	UserSelectorProps,
+	WeekDayDisplay,
+	DailyRowData,
+	DateRange,
+	TimesheetView,
+	TokenErrorType,
+	ValidateTokenResponse
 };
 
 export { EnumTabType };
