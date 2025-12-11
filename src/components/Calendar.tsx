@@ -40,14 +40,14 @@ const Calendar: FC<any> = (props: any): JSX.Element => {
 							onClick={() => {
 								const newDate = new Date(selectedDate);
 								newDate.setMonth(newDate.getMonth() + 1);
-								const today = new Date();
-								if (newDate.getMonth() <= today.getMonth() || newDate.getFullYear() < today.getFullYear()) {
+								const monthStart = new Date(newDate.getFullYear(), newDate.getMonth(), 1);
+								if (!IsFutureDate(monthStart)) {
 									setSelectedDate(newDate);
 								}
 							}}
-							disabled={selectedDate.getMonth() === new Date().getMonth() && selectedDate.getFullYear() === new Date().getFullYear()}
+							disabled={IsFutureDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 1))}
 							className={`p-1 rounded transition-colors ${
-								selectedDate.getMonth() === new Date().getMonth() && selectedDate.getFullYear() === new Date().getFullYear()
+								IsFutureDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 1))
 									? "opacity-50 cursor-not-allowed"
 									: "hover:bg-gray-100 cursor-pointer"
 							}`}
@@ -88,10 +88,10 @@ const Calendar: FC<any> = (props: any): JSX.Element => {
 										isFuture
 											? "text-gray-300 cursor-not-allowed"
 											: isSelectedDay
-											? "bg-blue-600 text-white font-semibold"
-											: isTodayDay
-											? "bg-blue-50 text-blue-600 font-semibold"
-											: "text-gray-900 hover:bg-gray-100 cursor-pointer"
+												? "bg-blue-600 text-white font-semibold"
+												: isTodayDay
+													? "bg-blue-50 text-blue-600 font-semibold"
+													: "text-gray-900 hover:bg-gray-100 cursor-pointer"
 									}`}
 								>
 									{day}

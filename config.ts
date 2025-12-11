@@ -6,7 +6,10 @@ const API_ENPOINT_V1: Record<string, string> = {
 	GET_PEOPLE: `${API_URL_V1}/people`,
 	GET_PERSON_BY_ID: `${API_URL_V1}/people/`,
 	GET_LASTEST_SCREENSHOTS_PER_USER: `${API_URL_V1}/dashboard/screenshots`,
-	GET_MEMBER_TIME: `${API_URL_V1}/dashboard/time`
+	GET_MEMBER_TIME_DAY: `${API_URL_V1}/dashboard/time/day`,
+	GET_MEMBER_TIME_WEEK: `${API_URL_V1}/dashboard/time/week`,
+	GET_USER_TIME_DAILY: `${API_URL_V1}/timesheet/daily`,
+	GET_USER_TIME_WEEKLY: `${API_URL_V1}/timesheet/weekly`
 };
 
 const JWT_SECRET: string = process.env.JWT_SECRET || "test";
@@ -100,6 +103,8 @@ const FormatUserName = (user: string): string =>
 		.map(part => part.charAt(0).toUpperCase() + part.slice(1))
 		.join(" ") || user;
 
+const FormatTimeUnit = (value?: number | string): string => String(value ?? 0).padStart(2, "0");
+
 export {
 	API_URL_V1,
 	API_ENPOINT_V1,
@@ -117,5 +122,6 @@ export {
 	MonthNames,
 	EncodeImage,
 	CompanyName,
-	FormatUserName
+	FormatUserName,
+	FormatTimeUnit
 };

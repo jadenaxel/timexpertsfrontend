@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from "react";
 import { FormatDate, GetNameInitials } from "@/../config";
 
 const CardPeople: FC<CardPeopleProps> = (props): JSX.Element => {
-	const { name, last_name, email = "", status = "Active", role = "User", enabled = true } = props;
+	const { name, last_name, email = "", status = "Active", role = "User", enabled = true, roles, department } = props;
 
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 	const dropdownRef = useRef<HTMLDivElement>(null);
@@ -36,8 +36,19 @@ const CardPeople: FC<CardPeopleProps> = (props): JSX.Element => {
 						<h3 className="font-medium text-gray-900 truncate">
 							{name} {last_name}
 						</h3>
-						{email && <p className="text-xs text-gray-500 truncate">{email}</p>}
 					</div>
+				</div>
+
+				<div className="flex items-center gap-2 flex-shrink-0 w-[190px] flex justify-end">
+					<p className="text-xs text-gray-500 truncate">{email ?? ""}</p>
+				</div>
+
+				<div className="flex items-center gap-2 flex-shrink-0 w-[160px] flex justify-end">
+					<p className="text-xs text-gray-500 truncate">{roles ?? ""}</p>
+				</div>
+
+				<div className="flex items-center gap-2 flex-shrink-0 w-[150px] flex justify-end">
+					<p className="text-xs text-gray-500 truncate">{department ?? ""}</p>
 				</div>
 
 				<div className="flex items-center gap-2 flex-shrink-0 w-[85px]">

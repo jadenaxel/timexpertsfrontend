@@ -34,6 +34,8 @@ import UserSelector from "./UserSelector";
 
 import { TSDailyView, TSWeeklyView, TSCalendarView } from "./timesheets";
 
+import { ScreenShotsWidget, MemberInfoWidget, ActivityScreenShotHeader, ActivityNoScreenshots, ActivityScreenshotsCard } from "./UI";
+
 export {
 	LogOutIcon,
 	SettingsIcon,
@@ -63,3 +65,5 @@ export { NavSide, Nav, ProtectedRoute };
 export { Loading, Error, InfoField, CardPeople, UnderConstruction, UserSelector };
 
 export { TSDailyView, TSWeeklyView, TSCalendarView };
+
+export { ScreenShotsWidget, MemberInfoWidget, ActivityScreenShotHeader, ActivityNoScreenshots, ActivityScreenshotsCard };

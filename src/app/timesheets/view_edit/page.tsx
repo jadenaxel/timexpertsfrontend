@@ -3,11 +3,12 @@
 import type { FC, JSX } from "react";
 import type { WeeklyRow } from "@/types";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { NavSide, Nav, ProtectedRoute, UserSelector, Error, Loading, TSDailyView, TSWeeklyView, TSCalendarView, Calendar } from "@/components";
+import { NavSide, Nav, ProtectedRoute, UserSelector, Loading, TSDailyView, TSWeeklyView, TSCalendarView, Calendar } from "@/components";
 import { useFetch } from "@/hooks";
 import { API_ENPOINT_V1, GenerateCalendar } from "@/../config";
+import { getAuthHeader } from "@/utils";
 
 const viewOptions: Array<"daily" | "weekly" | "calendar"> = ["daily", "weekly", "calendar"];
 
@@ -26,7 +27,7 @@ const startOfDay = (date: Date): Date => {
 const getWeekStart = (date: Date): Date => {
 	const d = startOfDay(date);
 	const day: number = d.getDay();
-	const diff: number = day === 0 ? -6 : 1 - day; // Monday as start of week
+	const diff: number = day === 0 ? -6 : 1 - day;
 	d.setDate(d.getDate() + diff);
 	return d;
 };
@@ -299,9 +300,14 @@ const buildDailyEntries = (records: any[], rangeStart: Date, rangeEnd: Date): { 
 	};
 };
 
+const toDateParam = (date: Date): string => startOfDay(date).toISOString().split("T")[0];
+
+type TimesheetView = "daily" | "weekly";
 const ViewEdit: FC = (): JSX.Element => {
 	const [selectedUserId, setSelectedUserId] = useState<string>("");
 	const [selectedView, setSelectedView] = useState<"daily" | "weekly" | "calendar">("daily");
+	const [timeLoading, setTimeLoading] = useState<boolean>(false);
+	const [timeError, setTimeError] = useState<string | null>(null);
 
 	const initialWeekStart: Date = getWeekStart(new Date());
 	const today: Date = startOfDay(new Date());
@@ -317,6 +323,65 @@ const ViewEdit: FC = (): JSX.Element => {
 
 	const { data: usersData, loading: usersLoading, error: usersError } = useFetch<any[]>(API_ENPOINT_V1.GET_PEOPLE);
 
+	useEffect(() => {
+		if (!selectedUserId && Array.isArray(usersData) && usersData.length > 0) {
+			setSelectedUserId(usersData[0].id_user);
+		}
+	}, [selectedUserId, usersData]);
+
+	const fetchUserTimeData = useCallback(async (userId: string, range: DateRange, view: TimesheetView) => {
+		if (!userId || !range?.start || !range?.end) {
+			setUserTimeData([]);
+			setTimeError(null);
+			return;
+		}
+
+		setTimeLoading(true);
+		setTimeError(null);
+		setUserTimeData([]);
+
+		try {
+			const endpoint = view === "daily" ? API_ENPOINT_V1.GET_USER_TIME_DAILY : API_ENPOINT_V1.GET_USER_TIME_WEEKLY;
+			const response = await fetch(endpoint, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					...getAuthHeader()
+				},
+				body: JSON.stringify({
+					userId,
+					id_user: userId,
+					startDate: toDateParam(range.start),
+					endDate: toDateParam(range.end),
+					start: toDateParam(range.start),
+					end: toDateParam(range.end)
+				})
+			});
+
+			if (!response.ok) {
+				throw new Error(`Request failed with status ${response.status}`);
+			}
+
+			const parsed = await response.json();
+			const normalizedData = Array.isArray(parsed)
+				? parsed
+				: Array.isArray(parsed?.data)
+				? parsed.data
+				: Array.isArray(parsed?.records)
+				? parsed.records
+				: Array.isArray(parsed?.result)
+				? parsed.result
+				: [];
+
+			setUserTimeData(normalizedData);
+		} catch (error: any) {
+			setTimeError(error?.message || "Failed to load time data");
+			setUserTimeData([]);
+		} finally {
+			setTimeLoading(false);
+		}
+	}, []);
+
 	const currentRange: DateRange = useMemo(() => {
 		if (selectedView === "weekly") return weeklyRange;
 		if (selectedView === "calendar") return calendarRange;
@@ -331,9 +396,28 @@ const ViewEdit: FC = (): JSX.Element => {
 		[userTimeData, weekDaysWeekly, weeklyRange.end, weeklyRange.start]
 	);
 
-	const { weeklyTotalFormatted: calendarTotalFormatted } = useMemo(
+	const { weeklyRows: calendarRows, weeklyTotalFormatted: calendarTotalFormatted } = useMemo(
 		() => transformTimeData(userTimeData, weekDaysCalendar, calendarRange.start, calendarRange.end),
 		[calendarRange.end, calendarRange.start, userTimeData, weekDaysCalendar]
+	);
+
+	const calendarDaysData = useMemo(
+		() =>
+			weekDaysCalendar.map(day => ({
+				id: `calendar-${day.key}-${day.date}`,
+				label: day.label,
+				month: day.month,
+				date: day.date,
+				events: (calendarRows ?? [])
+					.filter(row => row.entries[day.key] && row.entries[day.key] !== "-")
+					.map(row => ({
+						id: `${row.id}-${day.key}`,
+						title: row.project,
+						time: row.entries[day.key],
+						color: row.color
+					}))
+			})),
+		[calendarRows, weekDaysCalendar]
 	);
 
 	const { entries: dailyEntries, dailyTotalFormatted } = useMemo(
@@ -355,12 +439,23 @@ const ViewEdit: FC = (): JSX.Element => {
 		return `Total: ${calendarTotalFormatted || "0:00:00"}`;
 	}, [calendarTotalFormatted, dailyTotalFormatted, selectedView, weeklyTotalFormatted]);
 
+	useEffect(() => {
+		if (!selectedUserId) {
+			setUserTimeData([]);
+			setTimeError(null);
+			return;
+		}
+
+		const viewForFetch: TimesheetView = selectedView === "calendar" ? "weekly" : selectedView;
+		void fetchUserTimeData(selectedUserId, currentRange, viewForFetch);
+	}, [currentRange.end, currentRange.start, fetchUserTimeData, selectedUserId, selectedView]);
+
 	const handleStartDateChange = (date: Date) => {
 		if (selectedView === "weekly") {
-			const start: Date = getWeekStart(date);
+			const start: Date = startOfDay(date);
 			setWeeklyRange({ start, end: addDays(start, 6) });
 		} else if (selectedView === "calendar") {
-			const start: Date = getWeekStart(date);
+			const start: Date = startOfDay(date);
 			setCalendarRange({ start, end: addDays(start, 6) });
 		} else {
 			const start: Date = startOfDay(date);
@@ -370,19 +465,16 @@ const ViewEdit: FC = (): JSX.Element => {
 
 	const handleEndDateChange = (date: Date) => {
 		if (selectedView === "weekly") {
-			const start: Date = getWeekStart(date);
+			const start: Date = startOfDay(date);
 			setWeeklyRange({ start, end: addDays(start, 6) });
 		} else if (selectedView === "calendar") {
-			const start: Date = getWeekStart(date);
+			const start: Date = startOfDay(date);
 			setCalendarRange({ start, end: addDays(start, 6) });
 		} else {
 			const end: Date = startOfDay(date);
 			setDailyRange(prev => ({ start: end < prev.start ? end : prev.start, end }));
 		}
 	};
-
-	if (usersLoading) return <Loading full />;
-	if (usersError) return <Error />;
 
 	return (
 		<ProtectedRoute>
@@ -443,24 +535,23 @@ const ViewEdit: FC = (): JSX.Element => {
 								</div>
 
 								<div className="min-w-[280px]">
-									<UserSelector
-										users={usersData ?? []}
-										selectedUserId={selectedUserId}
-										onSelect={setSelectedUserId}
-										startDate={currentRange.start}
-										endDate={currentRange.end}
-										setUserTimeData={setUserTimeData}
-									/>
+									<UserSelector users={usersData ?? []} selectedUserId={selectedUserId} onSelect={setSelectedUserId} />
+									{usersLoading && <p className="mt-1 text-xs text-gray-500">Loading users...</p>}
+									{usersError && <p className="mt-1 text-xs text-red-600">Unable to load users.</p>}
 								</div>
 							</div>
 						</section>
 
 						<section>
-							{selectedView === "daily" && <TSDailyView totalLabel={totalLabel} entries={userTimeData} />}
-							{selectedView === "weekly" && (
-								<TSWeeklyView totalLabel={totalLabel} weekDays={weekDaysWeekly} rows={weeklyRows} dayTotals={dayTotals} weekTotal={weeklyTotalFormatted} />
-							)}
-							{selectedView === "calendar" && <TSCalendarView totalLabel={totalLabel} />}
+							{timeError && <p className="mb-2 text-sm font-medium text-red-600">Unable to load time data: {timeError}</p>}
+							{selectedView === "daily" && (timeLoading ? <Loading /> : <TSDailyView totalLabel={totalLabel} entries={dailyEntries} />)}
+							{selectedView === "weekly" &&
+								(timeLoading ? (
+									<Loading />
+								) : (
+									<TSWeeklyView totalLabel={totalLabel} weekDays={weekDaysWeekly} rows={weeklyRows} dayTotals={dayTotals} weekTotal={weeklyTotalFormatted} />
+								))}
+							{selectedView === "calendar" && <TSCalendarView totalLabel={totalLabel} days={calendarDaysData} loading={timeLoading} error={timeError} />}
 						</section>
 					</main>
 				</div>
