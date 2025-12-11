@@ -34,7 +34,18 @@ import UserSelector from "./UserSelector";
 
 import { TSDailyView, TSWeeklyView, TSCalendarView } from "./timesheets";
 
-import { ScreenShotsWidget, MemberInfoWidget, ActivityScreenShotHeader, ActivityNoScreenshots, ActivityScreenshotsCard } from "./UI";
+import {
+	ScreenShotsWidget,
+	MemberInfoWidget,
+	ActivityScreenShotHeader,
+	ActivityNoScreenshots,
+	ActivityScreenshotsCard,
+	PoepleSearch,
+	PeopleFilter,
+	PeopleTable,
+	PeoplePagination,
+	PeopleNotFound
+} from "./UI";
 
 export {
 	LogOutIcon,
@@ -66,4 +77,15 @@ export { Loading, Error, InfoField, CardPeople, UnderConstruction, UserSelector 
 
 export { TSDailyView, TSWeeklyView, TSCalendarView };
 
-export { ScreenShotsWidget, MemberInfoWidget, ActivityScreenShotHeader, ActivityNoScreenshots, ActivityScreenshotsCard };
+export {
+	ScreenShotsWidget,
+	MemberInfoWidget,
+	ActivityScreenShotHeader,
+	ActivityNoScreenshots,
+	ActivityScreenshotsCard,
+	PoepleSearch,
+	PeopleFilter,
+	PeopleTable,
+	PeoplePagination,
+	PeopleNotFound
+};
