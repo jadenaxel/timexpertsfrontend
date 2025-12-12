@@ -39,7 +39,6 @@ const UserSelector: FC<UserSelectorProps> = ({ users, selectedUserId, onSelect, 
 				}
 
 				const data = await response.json();
-				console.log(data);
 				setUserTimeData(data ?? []);
 			} catch (error) {
 				console.error("Error fetching time data", error);

@@ -8,18 +8,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { NavSide, Nav, ProtectedRoute, UserSelector, Loading, TSDailyView, TSWeeklyView, TSCalendarView, Calendar } from "@/components";
 import { useFetch } from "@/hooks";
 import { API_ENPOINT_V1 } from "@/config";
-import { getAuthHeader, GenerateCalendar, StartOfDay, GetWeekStart, AddDays, FormatDate } from "@/utils";
+import { getAuthHeader, GenerateCalendar, StartOfDay, GetWeekStart, AddDays, FormatDate, FormatDuration } from "@/utils";
 
 const viewOptions: Array<"daily" | "weekly" | "calendar"> = ["daily", "weekly", "calendar"];
 
 const DAY_KEYS: string[] = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
-
-const formatDuration = (seconds: number): string => {
-	const hrs = Math.floor(seconds / 3600);
-	const mins = Math.floor((seconds % 3600) / 60);
-	const secs = Math.floor(seconds % 60);
-	return `${hrs}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
-};
 
 const intervalToSeconds = (interval: any): number => {
 	if (!interval) return 0;
@@ -32,9 +25,9 @@ const intervalToSeconds = (interval: any): number => {
 		}
 	}
 
-	const hours = Number(interval.hour ?? interval.hours ?? interval.h ?? 0);
-	const minutes = Number(interval.minutes ?? interval.mins ?? interval.minute ?? interval.min ?? 0);
-	const seconds = Number(interval.seconds ?? interval.secs ?? interval.second ?? interval.sec ?? 0);
+	const hours: number = Number(interval.hour ?? interval.hours ?? interval.h ?? 0);
+	const minutes: number = Number(interval.minutes ?? interval.mins ?? interval.minute ?? interval.min ?? 0);
+	const seconds: number = Number(interval.seconds ?? interval.secs ?? interval.second ?? interval.sec ?? 0);
 
 	return hours * 3600 + minutes * 60 + seconds;
 };
@@ -189,17 +182,17 @@ const transformTimeData = (
 		project: row.project,
 		type: row.type,
 		color: row.color,
-		entries: Object.fromEntries(weekDays.map(day => [day.key, row.entriesSeconds[day.key] ? formatDuration(row.entriesSeconds[day.key]) : "-"])),
-		total: formatDuration(row.totalSeconds)
+		entries: Object.fromEntries(weekDays.map(day => [day.key, row.entriesSeconds[day.key] ? FormatDuration(row.entriesSeconds[day.key]) : "-"])),
+		total: FormatDuration(row.totalSeconds)
 	}));
 
-	const dayTotals: Record<string, string> = Object.fromEntries(weekDays.map(day => [day.key, dayTotalsSeconds[day.key] ? formatDuration(dayTotalsSeconds[day.key]) : "-"]));
+	const dayTotals: Record<string, string> = Object.fromEntries(weekDays.map(day => [day.key, dayTotalsSeconds[day.key] ? FormatDuration(dayTotalsSeconds[day.key]) : "-"]));
 
 	return {
 		weeklyRows,
 		dayTotals,
 		weeklyTotalSeconds,
-		weeklyTotalFormatted: formatDuration(weeklyTotalSeconds)
+		weeklyTotalFormatted: FormatDuration(weeklyTotalSeconds)
 	};
 };
 
@@ -224,18 +217,18 @@ const buildDailyEntries = (records: any[], rangeStart: Date, rangeEnd: Date): { 
 		return d >= start && d <= end;
 	};
 
-		(records || []).forEach((record: any) => {
-			const project: string = record?.project ?? record?.state ?? record?.activity ?? "Work item";
-			const type: string = record?.type ?? record?.category ?? record?.task ?? record?.description ?? "";
-			const color: string = getColorForLabel(project);
-			const id: string = project.toLowerCase().replace(/[^a-z0-9]+/g, "-") || "item";
-			const activity: string = type || project;
+	(records || []).forEach((record: any) => {
+		const project: string = record?.project ?? record?.state ?? record?.activity ?? "Work item";
+		const type: string = record?.type ?? record?.category ?? record?.task ?? record?.description ?? "";
+		const color: string = getColorForLabel(project);
+		const id: string = project.toLowerCase().replace(/[^a-z0-9]+/g, "-") || "item";
+		const activity: string = type || project;
 
-			const perDayEntries = extractDayEntries(record).filter(entry => inRange(entry.date));
-			const fromEntriesSeconds: number = perDayEntries.reduce((acc, entry) => acc + entry.seconds, 0);
-			const fallbackSeconds: number = intervalToSeconds(record?.total_interval ?? record?.interval ?? record?.total ?? record?.durationSeconds ?? record?.duration);
-			const durationSeconds: number = fromEntriesSeconds || fallbackSeconds;
-			if (durationSeconds <= 0) return;
+		const perDayEntries = extractDayEntries(record).filter(entry => inRange(entry.date));
+		const fromEntriesSeconds: number = perDayEntries.reduce((acc, entry) => acc + entry.seconds, 0);
+		const fallbackSeconds: number = intervalToSeconds(record?.total_interval ?? record?.interval ?? record?.total ?? record?.durationSeconds ?? record?.duration);
+		const durationSeconds: number = fromEntriesSeconds || fallbackSeconds;
+		if (durationSeconds <= 0) return;
 
 		const row =
 			rowsMap.get(project) ??
@@ -264,7 +257,7 @@ const buildDailyEntries = (records: any[], rangeStart: Date, rangeEnd: Date): { 
 		project: row.project,
 		type: row.type,
 		activity: row.activity,
-		duration: formatDuration(row.durationSeconds),
+		duration: FormatDuration(row.durationSeconds),
 		durationSeconds: row.durationSeconds,
 		color: row.color
 	}));
@@ -274,7 +267,7 @@ const buildDailyEntries = (records: any[], rangeStart: Date, rangeEnd: Date): { 
 	return {
 		entries,
 		dailyTotalSeconds,
-		dailyTotalFormatted: formatDuration(dailyTotalSeconds)
+		dailyTotalFormatted: FormatDuration(dailyTotalSeconds)
 	};
 };
 
@@ -320,7 +313,6 @@ const ViewEdit: FC = (): JSX.Element => {
 
 		try {
 			const endpoint = view === "daily" ? API_ENPOINT_V1.GET_USER_TIME_DAILY : API_ENPOINT_V1.GET_USER_TIME_WEEKLY;
-			console.log(userId);
 			const response = await fetch(endpoint, {
 				method: "POST",
 				headers: {
@@ -339,7 +331,6 @@ const ViewEdit: FC = (): JSX.Element => {
 			}
 
 			const parsed = await response.json();
-			console.log(parsed);
 			const normalizedData = Array.isArray(parsed)
 				? parsed
 				: Array.isArray(parsed?.data)

@@ -6,7 +6,7 @@ import { hasToken, getToken, setToken, removeToken, getAuthHeader } from "./toke
 import { FullName, GetNameInitials } from "./name";
 
 // Import Time Utils
-import { FormatDate, FormatHour, MonthNames, IsSameDay, IsToday, IsFutureDate, GenerateCalendar, FormatTimeUnit, StartOfDay, GetWeekStart, AddDays } from "./time";
+import { FormatDate, FormatHour, MonthNames, IsSameDay, IsToday, IsFutureDate, GenerateCalendar, FormatTimeUnit, StartOfDay, GetWeekStart, AddDays, FormatDuration } from "./time";
 
 // Export Auth Utils
 export { validateToken, hasToken, getToken, setToken, removeToken, getAuthHeader };
@@ -15,4 +15,4 @@ export { validateToken, hasToken, getToken, setToken, removeToken, getAuthHeader
 export { FullName, GetNameInitials };
 
 // Export Time Utils
-export { FormatDate, FormatHour, MonthNames, IsSameDay, IsToday, IsFutureDate, GenerateCalendar, FormatTimeUnit, StartOfDay, GetWeekStart, AddDays };
+export { FormatDate, FormatHour, MonthNames, IsSameDay, IsToday, IsFutureDate, GenerateCalendar, FormatTimeUnit, StartOfDay, GetWeekStart, AddDays, FormatDuration };
