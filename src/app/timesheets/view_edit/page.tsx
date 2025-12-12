@@ -1,36 +1,18 @@
 "use client";
 
 import type { FC, JSX } from "react";
-import type { WeeklyRow, WeekDayDisplay, DailyRowData, DateRange, TimesheetView } from "@/types";
+import type { DateRange, TimesheetView } from "@/types";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { NavSide, Nav, ProtectedRoute, UserSelector, Loading, TSDailyView, TSWeeklyView, TSCalendarView, Calendar } from "@/components";
 import { useFetch } from "@/hooks";
 import { API_ENPOINT_V1 } from "@/config";
-import { getAuthHeader, GenerateCalendar, StartOfDay, GetWeekStart, AddDays, FormatDate, FormatDuration } from "@/utils";
+import { getAuthHeader, GenerateCalendar, StartOfDay, GetWeekStart, AddDays, FormatDate, BuildWeekDays, TransformTimeData, BuildDailyEntries } from "@/utils";
 
 const viewOptions: Array<"daily" | "weekly" | "calendar"> = ["daily", "weekly", "calendar"];
 
 const DAY_KEYS: string[] = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
-
-const intervalToSeconds = (interval: any): number => {
-	if (!interval) return 0;
-	if (typeof interval === "number") return interval;
-
-	if (typeof interval === "string") {
-		const parts = interval.split(":").map(Number);
-		if (parts.length === 3 && parts.every(n => !Number.isNaN(n))) {
-			return parts[0] * 3600 + parts[1] * 60 + parts[2];
-		}
-	}
-
-	const hours: number = Number(interval.hour ?? interval.hours ?? interval.h ?? 0);
-	const minutes: number = Number(interval.minutes ?? interval.mins ?? interval.minute ?? interval.min ?? 0);
-	const seconds: number = Number(interval.seconds ?? interval.secs ?? interval.second ?? interval.sec ?? 0);
-
-	return hours * 3600 + minutes * 60 + seconds;
-};
 
 const getColorForLabel = (label: string): string => {
 	const value = (label || "").toLowerCase();
@@ -44,231 +26,6 @@ const getColorForLabel = (label: string): string => {
 	const palette = ["bg-sky-500", "bg-indigo-500", "bg-amber-500", "bg-rose-500", "bg-cyan-600", "bg-purple-500"];
 	const hash = value.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
 	return palette[hash % palette.length];
-};
-
-const buildWeekDays = (start: Date): WeekDayDisplay[] => {
-	const base = StartOfDay(start);
-	return Array.from({ length: 7 }, (_, index) => {
-		const current = AddDays(base, index);
-		const key = DAY_KEYS[current.getDay()];
-		return {
-			key,
-			label: current.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase(),
-			month: current.toLocaleDateString("en-US", { month: "short" }),
-			date: current.getDate(),
-			value: current
-		};
-	});
-};
-
-const extractDayEntries = (record: any): Array<{ date: Date; seconds: number }> => {
-	const entries: Array<{ date: Date; seconds: number }> = [];
-	const candidateArrays = [record?.days, record?.dates, record?.entries, record?.per_day, record?.perDate];
-
-	candidateArrays.forEach(list => {
-		if (!Array.isArray(list)) return;
-		list.forEach((item: any) => {
-			const dateValue = item?.date ?? item?.day ?? item?.date_time ?? item?.timestamp ?? item?.created_at;
-			const parsedDate = dateValue ? StartOfDay(new Date(dateValue)) : null;
-			const seconds = intervalToSeconds(item?.total_interval ?? item?.interval ?? item?.total ?? item);
-
-			if (parsedDate && !Number.isNaN(parsedDate.getTime()) && seconds > 0) {
-				entries.push({ date: parsedDate, seconds });
-			}
-		});
-	});
-
-	if (record?.entries && typeof record.entries === "object" && !Array.isArray(record.entries)) {
-		Object.entries(record.entries).forEach(([key, value]) => {
-			const parsedDate = StartOfDay(new Date(key));
-			const seconds = intervalToSeconds(value);
-			if (!Number.isNaN(parsedDate.getTime()) && seconds > 0) {
-				entries.push({ date: parsedDate, seconds });
-			}
-		});
-	}
-
-	const singleDateValue = record?.date ?? record?.day ?? record?.timestamp ?? record?.created_at;
-	if (singleDateValue) {
-		const parsedDate = StartOfDay(new Date(singleDateValue));
-		const seconds = intervalToSeconds(record?.total_interval ?? record?.interval ?? record?.total);
-		if (!Number.isNaN(parsedDate.getTime()) && seconds > 0) {
-			entries.push({ date: parsedDate, seconds });
-		}
-	}
-
-	return entries;
-};
-
-const transformTimeData = (
-	records: any[],
-	weekDays: WeekDayDisplay[],
-	rangeStart: Date,
-	rangeEnd: Date
-): {
-	weeklyRows: WeeklyRow[];
-	dayTotals: Record<string, string>;
-	weeklyTotalSeconds: number;
-	weeklyTotalFormatted: string;
-} => {
-	const rowsMap = new Map<
-		string,
-		{
-			id: string;
-			project: string;
-			type: string;
-			color: string;
-			entriesSeconds: Record<string, number>;
-			totalSeconds: number;
-		}
-	>();
-
-	const dayTotalsSeconds: Record<string, number> = {};
-	weekDays.forEach(day => {
-		dayTotalsSeconds[day.key] = 0;
-	});
-
-	let weeklyTotalSeconds = 0;
-
-	const inRange = (date: Date): boolean => date >= rangeStart && date <= rangeEnd;
-
-	(records || []).forEach((record: any) => {
-		const project: string = record?.project ?? record?.state ?? record?.activity ?? "Work item";
-		const type: string = record?.type ?? record?.category ?? record?.task ?? record?.description ?? "";
-		const color: string = getColorForLabel(project);
-		const id: string = project.toLowerCase().replace(/[^a-z0-9]+/g, "-") || "item";
-
-		const row =
-			rowsMap.get(project) ??
-			({
-				id,
-				project,
-				type,
-				color,
-				entriesSeconds: {},
-				totalSeconds: 0
-			} as {
-				id: string;
-				project: string;
-				type: string;
-				color: string;
-				entriesSeconds: Record<string, number>;
-				totalSeconds: number;
-			});
-
-		const perDayEntries = extractDayEntries(record).filter(entry => inRange(entry.date));
-
-		if (perDayEntries.length > 0) {
-			perDayEntries.forEach(({ date, seconds }) => {
-				const dayKey = DAY_KEYS[date.getDay()];
-				row.entriesSeconds[dayKey] = (row.entriesSeconds[dayKey] || 0) + seconds;
-				row.totalSeconds += seconds;
-				dayTotalsSeconds[dayKey] = (dayTotalsSeconds[dayKey] || 0) + seconds;
-				weeklyTotalSeconds += seconds;
-			});
-		} else {
-			const seconds = intervalToSeconds(record?.total_interval ?? record?.interval ?? record?.total);
-			if (seconds > 0) {
-				row.totalSeconds += seconds;
-				weeklyTotalSeconds += seconds;
-			}
-		}
-
-		rowsMap.set(project, row);
-	});
-
-	const weeklyRows: WeeklyRow[] = Array.from(rowsMap.values()).map(row => ({
-		id: row.id,
-		project: row.project,
-		type: row.type,
-		color: row.color,
-		entries: Object.fromEntries(weekDays.map(day => [day.key, row.entriesSeconds[day.key] ? FormatDuration(row.entriesSeconds[day.key]) : "-"])),
-		total: FormatDuration(row.totalSeconds)
-	}));
-
-	const dayTotals: Record<string, string> = Object.fromEntries(weekDays.map(day => [day.key, dayTotalsSeconds[day.key] ? FormatDuration(dayTotalsSeconds[day.key]) : "-"]));
-
-	return {
-		weeklyRows,
-		dayTotals,
-		weeklyTotalSeconds,
-		weeklyTotalFormatted: FormatDuration(weeklyTotalSeconds)
-	};
-};
-
-const buildDailyEntries = (records: any[], rangeStart: Date, rangeEnd: Date): { entries: DailyRowData[]; dailyTotalSeconds: number; dailyTotalFormatted: string } => {
-	const rowsMap = new Map<
-		string,
-		{
-			id: string;
-			project: string;
-			type: string;
-			color: string;
-			activity: string;
-			durationSeconds: number;
-		}
-	>();
-
-	const start = StartOfDay(rangeStart);
-	const end = StartOfDay(rangeEnd);
-
-	const inRange = (date: Date): boolean => {
-		const d = StartOfDay(date);
-		return d >= start && d <= end;
-	};
-
-	(records || []).forEach((record: any) => {
-		const project: string = record?.project ?? record?.state ?? record?.activity ?? "Work item";
-		const type: string = record?.type ?? record?.category ?? record?.task ?? record?.description ?? "";
-		const color: string = getColorForLabel(project);
-		const id: string = project.toLowerCase().replace(/[^a-z0-9]+/g, "-") || "item";
-		const activity: string = type || project;
-
-		const perDayEntries = extractDayEntries(record).filter(entry => inRange(entry.date));
-		const fromEntriesSeconds: number = perDayEntries.reduce((acc, entry) => acc + entry.seconds, 0);
-		const fallbackSeconds: number = intervalToSeconds(record?.total_interval ?? record?.interval ?? record?.total ?? record?.durationSeconds ?? record?.duration);
-		const durationSeconds: number = fromEntriesSeconds || fallbackSeconds;
-		if (durationSeconds <= 0) return;
-
-		const row =
-			rowsMap.get(project) ??
-			({
-				id,
-				project,
-				type,
-				color,
-				activity,
-				durationSeconds: 0
-			} as {
-				id: string;
-				project: string;
-				type: string;
-				color: string;
-				activity: string;
-				durationSeconds: number;
-			});
-
-		row.durationSeconds += durationSeconds;
-		rowsMap.set(project, row);
-	});
-
-	const entries: DailyRowData[] = Array.from(rowsMap.values()).map(row => ({
-		id: `${row.id}-daily`,
-		project: row.project,
-		type: row.type,
-		activity: row.activity,
-		duration: FormatDuration(row.durationSeconds),
-		durationSeconds: row.durationSeconds,
-		color: row.color
-	}));
-
-	const dailyTotalSeconds: number = entries.reduce((acc, item) => acc + item.durationSeconds, 0);
-
-	return {
-		entries,
-		dailyTotalSeconds,
-		dailyTotalFormatted: FormatDuration(dailyTotalSeconds)
-	};
 };
 
 const toDateParam = (date: Date): string => StartOfDay(date).toISOString().split("T")[0];
@@ -356,16 +113,16 @@ const ViewEdit: FC = (): JSX.Element => {
 		return dailyRange;
 	}, [calendarRange, dailyRange, selectedView, weeklyRange]);
 
-	const weekDaysWeekly = useMemo(() => buildWeekDays(weeklyRange.start), [weeklyRange.start]);
-	const weekDaysCalendar = useMemo(() => buildWeekDays(calendarRange.start), [calendarRange.start]);
+	const weekDaysWeekly = useMemo(() => BuildWeekDays(weeklyRange.start, DAY_KEYS), [weeklyRange.start]);
+	const weekDaysCalendar = useMemo(() => BuildWeekDays(calendarRange.start, DAY_KEYS), [calendarRange.start]);
 
 	const { weeklyRows, dayTotals, weeklyTotalFormatted } = useMemo(
-		() => transformTimeData(userTimeData, weekDaysWeekly, weeklyRange.start, weeklyRange.end),
+		() => TransformTimeData(userTimeData, weekDaysWeekly, weeklyRange.start, weeklyRange.end, getColorForLabel, DAY_KEYS),
 		[userTimeData, weekDaysWeekly, weeklyRange.end, weeklyRange.start]
 	);
 
 	const { weeklyRows: calendarRows, weeklyTotalFormatted: calendarTotalFormatted } = useMemo(
-		() => transformTimeData(userTimeData, weekDaysCalendar, calendarRange.start, calendarRange.end),
+		() => TransformTimeData(userTimeData, weekDaysCalendar, calendarRange.start, calendarRange.end, getColorForLabel, DAY_KEYS),
 		[calendarRange.end, calendarRange.start, userTimeData, weekDaysCalendar]
 	);
 
@@ -377,8 +134,8 @@ const ViewEdit: FC = (): JSX.Element => {
 				month: day.month,
 				date: day.date,
 				events: (calendarRows ?? [])
-					.filter(row => row.entries[day.key] && row.entries[day.key] !== "-")
-					.map(row => ({
+					.filter((row: any) => row.entries[day.key] && row.entries[day.key] !== "-")
+					.map((row: any) => ({
 						id: `${row.id}-${day.key}`,
 						title: row.project,
 						time: row.entries[day.key],
@@ -389,8 +146,8 @@ const ViewEdit: FC = (): JSX.Element => {
 	);
 
 	const { entries: dailyEntries, dailyTotalFormatted } = useMemo(
-		() => buildDailyEntries(userTimeData, dailyRange.start, dailyRange.end),
-		[dailyRange.end, dailyRange.start, userTimeData]
+		() => BuildDailyEntries(userTimeData, dailyRange.start, dailyRange.end, getColorForLabel),
+		[dailyRange.end, dailyRange.start, getColorForLabel, userTimeData]
 	);
 
 	const calendarDaysStart = useMemo(() => GenerateCalendar(currentRange.start), [currentRange.start, selectedView]);

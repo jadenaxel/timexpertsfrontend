@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 
 import { API_URL_V1 } from "@/config";
+import { normalizeTokenValue } from "@/utils";
 
 interface LoginState {
 	message?: string;
@@ -27,7 +28,20 @@ const login = async (_: LoginState, formData: FormData): Promise<LoginState> => 
 		if (!response.ok) return { error: true, message: "Invalid credentials." };
 
 		const data: any = await response.json();
-		const tokenString: any = typeof data.access_token === "string" ? data.access_token : JSON.stringify(data.access_token);
+		const tokenCandidate =
+			data?.access_token ??
+			data?.token ??
+			data?.accessToken ??
+			data?.data?.access_token ??
+			data?.data?.token ??
+			data?.data?.accessToken ??
+			data;
+
+		const tokenString = normalizeTokenValue(tokenCandidate);
+
+		if (!tokenString) {
+			return { error: true, message: "Invalid response from authentication server." };
+		}
 
 		return { error: false, token: tokenString };
 	} catch (error) {

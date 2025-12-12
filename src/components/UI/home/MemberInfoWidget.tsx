@@ -5,6 +5,8 @@ import { Loading } from "@/components";
 
 const MemberInfoWidget: FC<any> = (props: any): JSX.Element => {
 	const { memberTimeDataDay, memberTimeDataWeek, memberTimeLoadingDay, memberTimeLoadingWeek } = props;
+	const dailyMembers = Array.isArray(memberTimeDataDay) ? memberTimeDataDay : [];
+	const weeklyMembers = Array.isArray(memberTimeDataWeek) ? memberTimeDataWeek : [];
 
 	return (
 		<div className="w-[530px] max-w-full">
@@ -23,13 +25,13 @@ const MemberInfoWidget: FC<any> = (props: any): JSX.Element => {
 							<Loading />
 						</div>
 					) : (
-						memberTimeDataDay?.map((member: any, index: number) => {
-							const totalIntervalD = member.total_interval ?? {};
+						dailyMembers.map((member: any, index: number) => {
+							const totalIntervalD = member?.total_interval ?? {};
 							const hoursD = FormatTimeUnit(totalIntervalD.hour);
 							const minutesD = FormatTimeUnit(totalIntervalD.minutes);
 							const secondsD = FormatTimeUnit(totalIntervalD.seconds);
 
-							const totalIntervalW = memberTimeDataWeek?.[index]?.total_interval ?? {};
+							const totalIntervalW = weeklyMembers?.[index]?.total_interval ?? {};
 							const hoursW = FormatTimeUnit(totalIntervalW.hour);
 							const minutesW = FormatTimeUnit(totalIntervalW.minutes);
 							const secondsW = FormatTimeUnit(totalIntervalW.seconds);
@@ -55,17 +57,6 @@ const MemberInfoWidget: FC<any> = (props: any): JSX.Element => {
 										<span className="text-sm font-semibold text-gray-900">
 											{hoursW}:{minutesW}:{secondsW}
 										</span>
-
-										{/* <div className="flex items-end gap-[3px]">
-													{member.bars.map((height, index) => (
-														<span
-															key={height + index.toString()}
-															className="w-[6px] rounded-md bg-sky-500"
-															style={{ height: `${height}px`, opacity: index === member.bars.length - 1 ? 0.35 : 1 }}
-														/>
-													))}
-													<span className="w-10 border-t border-dashed border-sky-400 self-center" />
-												</div> */}
 									</div>
 								</div>
 							);

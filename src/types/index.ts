@@ -57,6 +57,7 @@ interface AuthContextType {
 	employeeId: string | null;
 	login: (token: string) => void;
 	logout: () => Promise<void>;
+	validateSession: (options?: { force?: boolean }) => Promise<ValidateTokenResponse>;
 }
 
 type ScreenShotItem = {

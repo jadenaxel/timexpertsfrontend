@@ -2,9 +2,12 @@
 
 import type { JSX } from "react";
 
+import Link from "next/link";
+
+
 import NavButton from "./button";
 import { NavigationData } from "@/helpers";
-import { LogOutIcon } from "../icons";
+import { LogOutIcon, SettingsIcon } from "../icons";
 import { useAuth } from "@/contexts";
 
 const NavSide = (): JSX.Element => {
@@ -24,6 +27,14 @@ const NavSide = (): JSX.Element => {
 				))}
 			</nav>
 			<div className="mt-auto w-full">
+				<Link href="/settings">
+					<button className="h-12 w-full text-white/60 hover:text-white hover:bg-white/10 flex items-center transition-all duration-300 justify-start p-0 cursor-pointer">
+						<div className="w-24 flex justify-center shrink-0">
+							<SettingsIcon />
+						</div>
+						<span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap font-medium">Settings</span>
+					</button>
+				</Link>
 				<button
 					className="h-12 w-full text-white/60 hover:text-white hover:bg-white/10 flex items-center transition-all duration-300 justify-start p-0 cursor-pointer"
 					onClick={() => {

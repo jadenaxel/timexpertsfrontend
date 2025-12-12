@@ -1,13 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { validateToken, hasToken } from "@/utils";
 import { useAuth } from "@/contexts";
 
 const useProtectedRoute = () => {
 	const [isValidating, setIsValidating] = useState(true);
 	const [isValid, setIsValid] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const { logout, isAuthenticated, isLoading } = useAuth();
+	const { logout, isAuthenticated, isLoading, validateSession } = useAuth();
 
 	const runValidation = useCallback(async () => {
 		setIsValidating(true);
@@ -19,14 +18,7 @@ const useProtectedRoute = () => {
 			return;
 		}
 
-		if (!hasToken()) {
-			setIsValid(false);
-			await logout();
-			setIsValidating(false);
-			return;
-		}
-
-		const result = await validateToken();
+		const result = await validateSession();
 
 		if (!result.valid) {
 			if (result.errorType === "network") {
@@ -41,7 +33,7 @@ const useProtectedRoute = () => {
 		}
 
 		setIsValidating(false);
-	}, [logout, isAuthenticated]);
+	}, [logout, isAuthenticated, validateSession]);
 
 	useEffect(() => {
 		if (isLoading) return;

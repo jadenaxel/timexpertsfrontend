@@ -1,13 +1,54 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useRef, ReactNode, useCallback } from "react";
 
 import { useRouter, usePathname } from "next/navigation";
 
 import { validateToken, getToken, setToken, removeToken } from "@/utils";
-import { AuthContextType } from "@/types";
+import { AuthContextType, ValidateTokenResponse } from "@/types";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const decodeBase64Url = (value: string): string => {
+	const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
+	const padded = normalized + "=".repeat((4 - (normalized.length % 4)) % 4);
+
+	if (typeof window !== "undefined" && typeof window.atob === "function") {
+		return window.atob(padded);
+	}
+
+	const bufferRef = typeof globalThis !== "undefined" ? (globalThis as any).Buffer : undefined;
+	if (bufferRef) {
+		return bufferRef.from(padded, "base64").toString("binary");
+	}
+
+	return "";
+};
+
+const extractEmployeeIdFromToken = (tokenValue: string | null): string | null => {
+	if (!tokenValue) return null;
+	const parts = tokenValue.split(".");
+	if (parts.length < 2) return null;
+
+	try {
+		const payload = JSON.parse(decodeBase64Url(parts[1]));
+		const candidate =
+			payload?.employeeId ??
+			payload?.employee_id ??
+			payload?.id_user ??
+			payload?.user_id ??
+			payload?.userId ??
+			payload?.id ??
+			payload?.sub;
+
+		if (typeof candidate === "string") return candidate;
+		if (typeof candidate === "number") return String(candidate);
+	} catch {
+		return null;
+	}
+
+	return null;
+};
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [token, setTokenState] = useState<string | null>(null);
@@ -19,6 +60,63 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const pathname = usePathname();
 
 	const hasInitialized = useRef(false);
+	const validationPromiseRef = useRef<Promise<ValidateTokenResponse> | null>(null);
+
+	const validateSession = useCallback(
+		async ({ force = false }: { force?: boolean } = {}): Promise<ValidateTokenResponse> => {
+			if (!force && validationPromiseRef.current) {
+				return validationPromiseRef.current;
+			}
+
+			const storedToken = getToken();
+
+			if (!storedToken) {
+				setTokenState(null);
+				setEmployeeId(null);
+				setIsAuthenticated(false);
+				return { valid: false, message: "No token found", errorType: "invalid" };
+			}
+
+			const validationPromise = (async (): Promise<ValidateTokenResponse> => {
+				const result = await validateToken();
+				const tokenMatches = getToken() === storedToken;
+
+				if (!tokenMatches) {
+					return result;
+				}
+
+				const resolvedEmployeeId = result.employeeId ?? extractEmployeeIdFromToken(storedToken);
+
+				if (result.valid) {
+					setTokenState(storedToken);
+					setEmployeeId(resolvedEmployeeId);
+					setIsAuthenticated(true);
+				} else if (result.errorType === "network") {
+					setTokenState(storedToken);
+					setIsAuthenticated(true);
+					if (resolvedEmployeeId) setEmployeeId(resolvedEmployeeId);
+				} else {
+					removeToken();
+					setTokenState(null);
+					setEmployeeId(null);
+					setIsAuthenticated(false);
+				}
+
+				return result;
+			})();
+
+			validationPromiseRef.current = validationPromise;
+
+			try {
+				return await validationPromise;
+			} finally {
+				if (validationPromiseRef.current === validationPromise) {
+					validationPromiseRef.current = null;
+				}
+			}
+		},
+		[]
+	);
 
 	useEffect(() => {
 		if (hasInitialized.current) return;
@@ -27,29 +125,17 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 		const initAuth = async () => {
 			const storedToken = getToken();
 
-			if (!storedToken) {
-				setIsLoading(false);
-				return;
-			}
-
-			const result = await validateToken();
-
-			if (result.valid) {
+			if (storedToken) {
 				setTokenState(storedToken);
-				setEmployeeId(result.employeeId ?? null);
-				setIsAuthenticated(true);
-			} else if (result.errorType === "invalid") {
-				removeToken();
-			} else if (result.errorType === "network") {
-				setTokenState(storedToken);
-				setIsAuthenticated(true);
+				setEmployeeId(extractEmployeeIdFromToken(storedToken));
+				await validateSession({ force: true });
 			}
 
 			setIsLoading(false);
 		};
 
-		initAuth();
-	}, []);
+		void initAuth();
+	}, [validateSession]);
 
 	useEffect(() => {
 		if (isLoading) return;
@@ -64,12 +150,14 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const handleLogin = (newToken: string) => {
 		setToken(newToken);
 		setTokenState(newToken);
+		setEmployeeId(extractEmployeeIdFromToken(newToken));
 		setIsAuthenticated(true);
 		router.push("/");
 	};
 
 	const handleLogout = async () => {
 		removeToken();
+		validationPromiseRef.current = null;
 		setTokenState(null);
 		setEmployeeId(null);
 		setIsAuthenticated(false);
@@ -84,7 +172,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 				isLoading,
 				employeeId,
 				login: handleLogin,
-				logout: handleLogout
+				logout: handleLogout,
+				validateSession
 			}}
 		>
 			{children}

@@ -47,9 +47,9 @@ const People: FC = (): JSX.Element => {
 	const startIndex: number = (currentPage - 1) * ITEMS_PER_PAGE;
 	const endIndex: number = startIndex + ITEMS_PER_PAGE;
 
-	const paginatedData = useMemo(() => {
-		return filteredData.sort((a: any, b: any) => a.status.localeCompare(b.status)).slice(startIndex, endIndex);
-	}, [filteredData, startIndex, endIndex]);
+	// const paginatedData = useMemo(() => {
+	// 	return filteredData.sort((a: any, b: any) => a.status.localeCompare(b.status)).slice(startIndex, endIndex);
+	// }, [filteredData, startIndex, endIndex]);
 
 	useMemo(() => {
 		setCurrentPage(1);
@@ -81,8 +81,15 @@ const People: FC = (): JSX.Element => {
 						<PeopleFilter statusFilter={statusFilter} setStatusFilter={setStatusFilter} setCurrentPage={setCurrentPage} />
 
 						{filteredData.length > 0 && <PeopleTable />}
+						{data.map((person: any, key: number) => {
+							return (
+								<Link href={`/people/${person.id_user}`} key={key}>
+									<CardPeople {...person} />
+								</Link>
+							);
+						})}
 
-						{paginatedData.length > 0 ? (
+						{/* {paginatedData.length > 0 ? (
 							<>
 								{paginatedData.map((person: any, key: number) => {
 									return (
@@ -105,7 +112,7 @@ const People: FC = (): JSX.Element => {
 							</>
 						) : (
 							<PeopleNotFound />
-						)}
+						)} */}
 					</main>
 				</div>
 			</div>

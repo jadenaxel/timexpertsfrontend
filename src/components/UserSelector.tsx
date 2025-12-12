@@ -17,13 +17,16 @@ const UserSelector: FC<UserSelectorProps> = ({ users, selectedUserId, onSelect, 
 
 	const fetchUserTimeData = useCallback(
 		async (userId: string) => {
+			console.log("toribio", userId);
 			if (!setUserTimeData || !startDate || !endDate) return;
 
 			const start: string = startDate.toISOString();
 			const end: string = endDate.toISOString();
 
+			console.log("toribio", userId);
+
 			try {
-				const response = await fetch(`${API_ENPOINT_V1.GET_PERSON_BY_ID}ltoribio/date`, {
+				const response = await fetch(`${API_ENPOINT_V1.GET_PERSON_BY_ID}${userId}/date`, {
 					method: "POST",
 					body: JSON.stringify({ from: start, to: end }),
 					headers: {
@@ -71,9 +74,11 @@ const UserSelector: FC<UserSelectorProps> = ({ users, selectedUserId, onSelect, 
 		void fetchUserTimeData(selectedUserId);
 	}, [endDate, fetchUserTimeData, selectedUserId, setUserTimeData, startDate]);
 
-	const filteredUsers = users.filter(user => {
+	const filteredUsers = users.filter((user: any) => {
 		const fullName = `${user.name} ${user.last_name}`.toLowerCase();
-		return fullName.includes(searchQuery.toLowerCase());
+		const userID = user.id_user.toLowerCase();
+
+		return fullName.includes(searchQuery.toLowerCase()) || userID.includes(searchQuery.toLowerCase());
 	});
 
 	return (
