@@ -17,13 +17,10 @@ const UserSelector: FC<UserSelectorProps> = ({ users, selectedUserId, onSelect, 
 
 	const fetchUserTimeData = useCallback(
 		async (userId: string) => {
-			console.log("toribio", userId);
 			if (!setUserTimeData || !startDate || !endDate) return;
 
 			const start: string = startDate.toISOString();
 			const end: string = endDate.toISOString();
-
-			console.log("toribio", userId);
 
 			try {
 				const response = await fetch(`${API_ENPOINT_V1.GET_PERSON_BY_ID}${userId}/date`, {

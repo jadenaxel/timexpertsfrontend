@@ -15,8 +15,6 @@ const Settings = (): JSX.Element => {
 	const [profileLoading, setProfileLoading] = useState<boolean>(true);
 	const [profileError, setProfileError] = useState<string | null>(null);
 
-	console.log(employeeId, token);
-
 	useEffect(() => {
 		if (!employeeId) {
 			setProfileData(null);

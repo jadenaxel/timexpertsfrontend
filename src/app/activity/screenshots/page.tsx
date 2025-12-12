@@ -80,16 +80,18 @@ const ActivityScreenshots: FC = (): JSX.Element => {
 					<Nav title="Screenshots" />
 
 					<main className="flex-1 p-8">
-						<ActivityScreenShotHeader
-							selectedDate={selectedDate}
-							setSelectedDate={setSelectedDate}
-							showCalendar={showCalendar}
-							setShowCalendar={setShowCalendar}
-							calendarDays={calendarDays}
-							usersData={usersData}
-							selectedUser={selectedUser}
-							setSelectedUser={setSelectedUser}
-						/>
+						{usersData && usersData.length > 0 && (
+							<ActivityScreenShotHeader
+								selectedDate={selectedDate}
+								setSelectedDate={setSelectedDate}
+								showCalendar={showCalendar}
+								setShowCalendar={setShowCalendar}
+								calendarDays={calendarDays}
+								usersData={usersData}
+								selectedUser={selectedUser}
+								setSelectedUser={setSelectedUser}
+							/>
+						)}
 
 						{userLoading ? (
 							<Loading />

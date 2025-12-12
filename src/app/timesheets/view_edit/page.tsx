@@ -275,11 +275,13 @@ const ViewEdit: FC = (): JSX.Element => {
 									</div>
 								</div>
 
-								<div className="min-w-[280px]">
-									<UserSelector users={usersData ?? []} selectedUserId={selectedUserId} onSelect={setSelectedUserId} />
-									{usersLoading && <p className="mt-1 text-xs text-gray-500">Loading users...</p>}
-									{usersError && <p className="mt-1 text-xs text-red-600">Unable to load users.</p>}
-								</div>
+								{usersData && usersData.length > 0 && (
+									<div className="min-w-[280px]">
+										<UserSelector users={usersData} selectedUserId={selectedUserId} onSelect={setSelectedUserId} />
+										{usersLoading && <p className="mt-1 text-xs text-gray-500">Loading users...</p>}
+										{usersError && <p className="mt-1 text-xs text-red-600">Unable to load users.</p>}
+									</div>
+								)}
 							</div>
 						</section>
 
