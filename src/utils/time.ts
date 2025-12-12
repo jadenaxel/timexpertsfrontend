@@ -1,4 +1,4 @@
-const FormatDate = (date: string): string => {
+const FormatDate = (date: any): any => {
 	if (!date) return "";
 	try {
 		return new Date(date).toLocaleDateString("en-US", {
@@ -53,4 +53,24 @@ const GenerateCalendar = (date: Date): (number | null)[] => {
 
 const FormatTimeUnit = (value?: number | string): string => String(value ?? 0).padStart(2, "0");
 
-export { FormatDate, FormatHour, MonthNames, IsSameDay, IsToday, IsFutureDate, GenerateCalendar, FormatTimeUnit };
+const StartOfDay = (date: Date): Date => {
+	const d: Date = new Date(date);
+	d.setHours(0, 0, 0, 0);
+	return d;
+};
+
+const GetWeekStart = (date: Date, startOfDay: (date: Date) => Date): Date => {
+	const d: Date = startOfDay(date);
+	const day: number = d.getDay();
+	const diff: number = day === 0 ? -6 : 1 - day;
+	d.setDate(d.getDate() + diff);
+	return d;
+};
+
+const AddDays = (date: Date, days: number): Date => {
+	const d: Date = new Date(date);
+	d.setDate(d.getDate() + days);
+	return d;
+};
+
+export { FormatDate, FormatHour, MonthNames, IsSameDay, IsToday, IsFutureDate, GenerateCalendar, FormatTimeUnit, StartOfDay, GetWeekStart, AddDays };
